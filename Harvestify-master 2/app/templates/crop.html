@@ -1,0 +1,71 @@
+{% extends 'layout.html' %} {% block body %}
+
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <h2 class="h4 mb-1">{{ _('Crop recommendation') }}</h2>
+            <p class="text-muted mb-4">
+              {{ _('Enter your soil nutrients, pH and rainfall. Harvestify will suggest a crop that fits your field.') }}
+            </p>
+
+            <form method="POST" action="{{ url_for('crop_prediction') }}">
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="Nitrogen">{{ _('Nitrogen (N)') }}</label>
+                  <input type="number" class="form-control" id="Nitrogen" name="nitrogen" placeholder="e.g. 80" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="Phosphorous">{{ _('Phosphorus (P)') }}</label>
+                  <input type="number" class="form-control" id="Phosphorous" name="phosphorous" placeholder="e.g. 40" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="Pottasium">{{ _('Potassium (K)') }}</label>
+                  <input type="number" class="form-control" id="Pottasium" name="pottasium" placeholder="e.g. 40" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="ph">{{ _('Soil pH') }}</label>
+                  <input type="number" step="0.01" class="form-control" id="ph" name="ph" placeholder="e.g. 6.5" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="Rainfall">{{ _('Rainfall (mm)') }}</label>
+                  <input type="number" step="0.01" class="form-control" id="Rainfall" name="rainfall" placeholder="Annual rainfall" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="sts">{{ _('Location') }}</label>
+                  <select id="sts" name="stt" class="form-control mb-2" required onchange="print_city('state', this.selectedIndex);"></select>
+                  <select id="state" name="city" class="form-control" required></select>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <p class="small text-muted mb-0">
+                  {{ _('Tip: reuse these values when exploring products in the marketplace.') }}
+                </p>
+                <button type="submit" class="btn btn-success">
+                  {{ _('Get crop suggestion') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    if (typeof print_state === "function") {
+      print_state("sts");
+    }
+  })();
+</script>
+
+{% endblock %}
+

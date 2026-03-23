@@ -1,0 +1,179 @@
+{% extends 'layout.html' %} {% block body %}
+
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-7 mb-4 mb-lg-0">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <h2 class="h4 mb-1">{{ _('Checkout') }}</h2>
+            <p class="text-muted mb-4">{{ _('Complete your delivery details and confirm your order.') }}</p>
+
+            {% if form_error %}
+              <div class="alert alert-warning">{{ form_error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('marketplace_checkout_submit') }}" id="checkout-form">
+              <input type="hidden" name="cart_json" id="cart_json" />
+
+              <h6 class="text-uppercase text-muted small mb-3">{{ _('Contact') }}</h6>
+              <div class="form-row">
+                <div class="form-group col-md-8">
+                  <label class="small font-weight-semibold" for="customer_name">{{ _('Full name') }}</label>
+                  <input class="form-control" id="customer_name" name="customer_name" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="phone">{{ _('Phone') }}</label>
+                  <input class="form-control" id="phone" name="phone" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="small font-weight-semibold" for="email">{{ _('Email (optional)') }}</label>
+                <input class="form-control" id="email" name="email" type="email" />
+              </div>
+
+              <hr class="my-4" />
+
+              <h6 class="text-uppercase text-muted small mb-3">{{ _('Delivery address') }}</h6>
+              <div class="form-group">
+                <label class="small font-weight-semibold" for="address_line1">{{ _('Address line 1') }}</label>
+                <input class="form-control" id="address_line1" name="address_line1" required />
+              </div>
+              <div class="form-group">
+                <label class="small font-weight-semibold" for="address_line2">{{ _('Address line 2 (optional)') }}</label>
+                <input class="form-control" id="address_line2" name="address_line2" />
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-5">
+                  <label class="small font-weight-semibold" for="city">{{ _('City') }}</label>
+                  <input class="form-control" id="city" name="city" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="state">{{ _('State') }}</label>
+                  <input class="form-control" id="state" name="state" required />
+                </div>
+                <div class="form-group col-md-3">
+                  <label class="small font-weight-semibold" for="pincode">{{ _('Pincode') }}</label>
+                  <input class="form-control" id="pincode" name="pincode" required />
+                </div>
+              </div>
+
+              <hr class="my-4" />
+
+              <h6 class="text-uppercase text-muted small mb-3">{{ _('Payment') }}</h6>
+              <div class="form-group">
+                <div class="custom-control custom-radio">
+                  <input type="radio" id="pay_cod" name="payment_method" class="custom-control-input" value="cod" checked>
+                  <label class="custom-control-label" for="pay_cod">{{ _('Cash on delivery (demo)') }}</label>
+                </div>
+                <div class="custom-control custom-radio mt-2">
+                  <input type="radio" id="pay_upi" name="payment_method" class="custom-control-input" value="upi">
+                  <label class="custom-control-label" for="pay_upi">{{ _('UPI (demo)') }}</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="small font-weight-semibold" for="notes">{{ _('Order notes (optional)') }}</label>
+                <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-4">
+                <a class="btn btn-outline-secondary" href="{{ url_for('marketplace') }}">{{ _('Back to marketplace') }}</a>
+                <button class="btn btn-success" type="submit" id="place-order-btn">{{ _('Place order') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="mb-0">{{ _('Order summary') }}</h5>
+              <a href="{{ url_for('marketplace_orders') }}" class="small">{{ _('My orders') }}</a>
+            </div>
+            <p class="text-muted small mb-3">{{ _('Review items before placing your order.') }}</p>
+            <div id="checkout-empty" class="text-muted">{{ _('Your cart is empty.') }}</div>
+            <div id="checkout-summary" class="d-none">
+              <ul id="checkout-items" class="list-unstyled mb-3"></ul>
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="text-muted">{{ _('Subtotal') }}</span>
+                <span id="checkout-subtotal">₹0</span>
+              </div>
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="text-muted">{{ _('Shipping') }}</span>
+                <span id="checkout-shipping">₹0</span>
+              </div>
+              <hr />
+              <div class="d-flex justify-content-between">
+                <strong>{{ _('Total') }}</strong>
+                <strong id="checkout-total">₹0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    function loadCart() {
+      try {
+        const raw = localStorage.getItem("hf_cart_v1");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed;
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function formatPrice(p) {
+      return "₹" + p.toLocaleString("en-IN", { maximumFractionDigits: 0 });
+    }
+
+    const items = loadCart();
+    const empty = document.getElementById("checkout-empty");
+    const summary = document.getElementById("checkout-summary");
+    const ul = document.getElementById("checkout-items");
+    const cartJson = document.getElementById("cart_json");
+
+    if (!items.length) {
+      empty.classList.remove("d-none");
+      summary.classList.add("d-none");
+      document.getElementById("place-order-btn").disabled = true;
+      cartJson.value = "";
+      return;
+    }
+
+    empty.classList.add("d-none");
+    summary.classList.remove("d-none");
+    ul.innerHTML = "";
+
+    let subtotal = 0;
+    items.forEach((it) => {
+      const li = document.createElement("li");
+      li.className = "d-flex justify-content-between mb-2";
+      const line = (it.price || 0) * (it.qty || 0);
+      subtotal += line;
+      li.innerHTML = `<div><div class="font-weight-semibold">${it.name}</div><div class="text-muted small">Qty: ${it.qty}</div></div><div>${formatPrice(line)}</div>`;
+      ul.appendChild(li);
+    });
+
+    const shipping = subtotal >= 1500 ? 0 : 49;
+    const total = subtotal + shipping;
+
+    document.getElementById("checkout-subtotal").textContent = formatPrice(subtotal);
+    document.getElementById("checkout-shipping").textContent = formatPrice(shipping);
+    document.getElementById("checkout-total").textContent = formatPrice(total);
+
+    cartJson.value = JSON.stringify(items);
+  })();
+</script>
+
+{% endblock %}
+

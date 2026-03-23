@@ -1,0 +1,58 @@
+{% extends 'layout.html' %} {% block body %}
+
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <h2 class="h4 mb-1">{{ _('Disease detection') }}</h2>
+            <p class="text-muted mb-4">
+              {{ _('Upload a clear photo of a single leaf. Harvestify will try to detect the disease and recommend treatment.') }}
+            </p>
+
+            <form method="POST" enctype="multipart/form-data">
+              <div class="form-group">
+                <label class="small font-weight-semibold" for="inputfile">{{ _('Leaf image') }}</label>
+                <input
+                  type="file"
+                  name="file"
+                  class="form-control-file"
+                  id="inputfile"
+                  accept="image/*"
+                  onchange="preview_image(event)"
+                  required
+                />
+              </div>
+
+              <div class="text-center my-3">
+                <img id="output-image" class="img-fluid rounded shadow-sm d-none" style="max-height: 260px;" />
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <button class="btn btn-success" type="submit">
+                  {{ _('Analyze image') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function preview_image(event) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var output = document.getElementById("output-image");
+      output.src = reader.result;
+      output.classList.remove("d-none");
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+</script>
+
+{% endblock %}
+

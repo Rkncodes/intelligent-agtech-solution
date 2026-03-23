@@ -1,0 +1,55 @@
+{% extends 'layout.html' %} {% block body %}
+
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="h4 mb-1">{{ _('My orders') }}</h2>
+        <p class="text-muted mb-0">{{ _('Recent checkout history from this device.') }}</p>
+      </div>
+      <a class="btn btn-outline-success btn-sm" href="{{ url_for('marketplace') }}">{{ _('Back to marketplace') }}</a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        {% if not orders %}
+          <div class="p-4 text-muted">{{ _('No orders yet. Go to marketplace and checkout.') }}</div>
+        {% else %}
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Order</th>
+                  <th>Placed</th>
+                  <th>Customer</th>
+                  <th class="text-right">Total</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for o in orders %}
+                <tr>
+                  <td>#{{ o.id }}</td>
+                  <td class="text-muted small">{{ o.created_at }}</td>
+                  <td>{{ o.customer_name }}</td>
+                  <td class="text-right">₹{{ "%.0f"|format(o.total) }}</td>
+                  <td><span class="badge badge-success">{{ o.status }}</span></td>
+                  <td class="text-right">
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('marketplace_order', order_id=o.id) }}">
+                      View
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+

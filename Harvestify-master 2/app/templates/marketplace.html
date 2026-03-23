@@ -1,0 +1,392 @@
+{% extends 'layout.html' %} {% block body %}
+
+<section class="hf-mkt-hero py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-xl-7 col-lg-7">
+        <p class="text-success text-uppercase small font-weight-semibold mb-2">
+          {{ _('Marketplace') }}
+        </p>
+        <h1 class="display-5 font-weight-bold text-dark mb-3">{{ _('Buy and sell farm inputs in one place.') }}</h1>
+        <p class="lead text-muted mb-4">
+          {{ _('Discover seeds, fertilizers, tools and services — or create your own listing for other farmers to see.') }}
+        </p>
+        <div class="hf-mkt-searchbar">
+          <span class="fa fa-search text-muted mr-2"></span>
+          <input
+            id="marketplace-search"
+            type="text"
+            class="hf-mkt-search-input"
+            placeholder="{{ _('Search for seeds, organic fertilizer, sensors...') }}"
+          />
+        </div>
+        <div class="d-flex flex-wrap mt-3 small text-muted">
+          <span class="mr-3">{{ _('Sort by:') }}</span>
+          <button class="btn btn-xs btn-outline-secondary mr-2 hf-sort-btn active" data-sort="recommended">
+            {{ _('Recommended') }}
+          </button>
+          <button class="btn btn-xs btn-outline-secondary mr-2 hf-sort-btn" data-sort="price_asc">
+            {{ _('Price ↑') }}
+          </button>
+          <button class="btn btn-xs btn-outline-secondary hf-sort-btn" data-sort="price_desc">
+            {{ _('Price ↓') }}
+          </button>
+        </div>
+      </div>
+      <div class="col-xl-5 col-lg-5 mt-4 mt-lg-0">
+        <div class="hf-mkt-cart shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">{{ _('Your cart') }}</h5>
+            <span class="badge badge-light small" id="marketplace-count">0 products</span>
+          </div>
+          <ul id="marketplace-cart" class="list-unstyled small mb-3 hf-mkt-cart-list">
+            <li class="text-muted">{{ _('Cart is empty. Click “Add” on a product.') }}</li>
+          </ul>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted small">{{ _('Estimated total') }}</span>
+            <strong id="marketplace-cart-total">₹0</strong>
+          </div>
+          <div class="d-flex">
+            <button type="button" class="btn btn-outline-secondary btn-sm mr-2" id="marketplace-clear-cart-btn">
+              {{ _('Clear') }}
+            </button>
+            <button type="button" class="btn btn-success btn-sm flex-grow-1" id="marketplace-checkout-btn">
+              {{ _('Proceed to checkout') }}
+            </button>
+          </div>
+          <p class="small text-muted mt-2 mb-0">
+            {{ _('(Demo checkout – confirm your plan, no real payments.)') }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-4 bg-white">
+  <div class="container">
+    <div class="row">
+      <aside class="col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h6 class="text-uppercase text-muted small mb-3">{{ _('Categories') }}</h6>
+            <div class="hf-mkt-filter-list">
+              <button class="btn btn-sm btn-outline-success mb-2 d-block w-100 text-left filter-chip active" data-category="all">
+                {{ _('All products') }}
+              </button>
+              <button class="btn btn-sm btn-outline-success mb-2 d-block w-100 text-left filter-chip" data-category="seeds">
+                {{ _('Seeds') }}
+              </button>
+              <button class="btn btn-sm btn-outline-success mb-2 d-block w-100 text-left filter-chip" data-category="fertilizer">
+                {{ _('Fertilizers') }}
+              </button>
+              <button class="btn btn-sm btn-outline-success mb-2 d-block w-100 text-left filter-chip" data-category="tools">
+                {{ _('Tools & equipment') }}
+              </button>
+              <button class="btn btn-sm btn-outline-success d-block w-100 text-left filter-chip" data-category="services">
+                {{ _('Services') }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h6 class="text-uppercase text-muted small mb-3">{{ _('Sell something') }}</h6>
+            <p class="small text-muted">
+              {{ _('List your own seeds, inputs or services. Other farmers can discover them here.') }}
+            </p>
+            <form method="POST" action="{{ url_for('marketplace_add') }}">
+              <div class="form-group">
+                <label for="sellName" class="small mb-1">{{ _('Name') }}</label>
+                <input type="text" class="form-control form-control-sm" id="sellName" name="name" required>
+              </div>
+              <div class="form-group">
+                <label for="sellCategory" class="small mb-1">{{ _('Category') }}</label>
+                <select class="form-control form-control-sm" id="sellCategory" name="category" required>
+                  <option value="seeds">Seeds</option>
+                  <option value="fertilizer">Fertilizer</option>
+                  <option value="tools">Tool / equipment</option>
+                  <option value="services">Service</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="sellPrice" class="small mb-1">{{ _('Price (₹)') }}</label>
+                <input type="number" min="0" step="1" class="form-control form-control-sm" id="sellPrice" name="price" required>
+              </div>
+              <div class="form-group">
+                <label for="sellTag" class="small mb-1">{{ _('Tag (optional)') }}</label>
+                <input type="text" class="form-control form-control-sm" id="sellTag" name="tag" placeholder="Organic, hybrid...">
+              </div>
+              <div class="form-group mb-2">
+                <label for="sellDescription" class="small mb-1">{{ _('Short description') }}</label>
+                <textarea class="form-control form-control-sm" id="sellDescription" name="description" rows="2"></textarea>
+              </div>
+              <button type="submit" class="btn btn-success btn-sm btn-block">
+                {{ _('Publish listing') }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </aside>
+
+      <div class="col-lg-9">
+        <h5 class="mb-3">{{ _('Featured products') }}</h5>
+        <div class="row" id="marketplace-grid">
+          {% for p in products %}
+          <div
+            class="col-md-6 col-xl-4 mb-4 marketplace-item"
+            data-id="{{ p.id }}"
+            data-category="{{ p.category }}"
+            data-name="{{ p.name }}"
+            data-description="{{ p.description }}"
+            data-price="{{ p.price }}"
+            data-currency="{{ p.currency }}"
+            data-tag="{{ p.tag or '' }}"
+          >
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+              <div class="card-body d-flex flex-column">
+                {% if p.badge %}
+                <span class="badge badge-soft-success mb-2">{{ p.badge }}</span>
+                {% endif %}
+                <h6 class="text-uppercase text-muted small mb-1">{{ p.category }}</h6>
+                <h5 class="card-title mb-1">{{ p.name }}</h5>
+                {% if p.highlight %}
+                <p class="small text-success mb-1">{{ p.highlight }}</p>
+                {% endif %}
+                <p class="card-text small text-muted flex-grow-1">
+                  {{ p.description }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                  <div>
+                    <span class="h5 mb-0">₹{{ "%.0f"|format(p.price) }}</span>
+                    {% if p.tag %}
+                    <div class="small text-muted">{{ p.tag }}</div>
+                    {% endif %}
+                  </div>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary marketplace-quick-btn" type="button">{{ _('Quick view') }}</button>
+                    <button class="btn btn-success marketplace-add-btn" type="button">{{ _('Add') }}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <p id="marketplace-empty" class="text-muted text-center mt-4 d-none">
+          {{ _('No products match your filters. Try changing category or search text.') }}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const searchInput = document.getElementById("marketplace-search");
+    const sortButtons = Array.from(document.querySelectorAll(".hf-sort-btn"));
+    const items = Array.from(document.querySelectorAll(".marketplace-item"));
+    const chips = Array.from(document.querySelectorAll(".filter-chip"));
+    const emptyState = document.getElementById("marketplace-empty");
+    const countLabel = document.getElementById("marketplace-count");
+    const cartList = document.getElementById("marketplace-cart");
+    const cartTotal = document.getElementById("marketplace-cart-total");
+    const checkoutBtn = document.getElementById("marketplace-checkout-btn");
+    const clearCartBtn = document.getElementById("marketplace-clear-cart-btn");
+
+    let activeCategory = "all";
+    let activeSort = "recommended";
+    const cart = new Map();
+
+    function formatPrice(p) {
+      return "₹" + p.toLocaleString("en-IN", { maximumFractionDigits: 0 });
+    }
+
+    function updateCartUI() {
+      cartList.innerHTML = "";
+      if (cart.size === 0) {
+        cartList.innerHTML =
+          '<li class="text-muted">{{ _("Cart is empty. Click “Add” on a product.") }}</li>';
+        cartTotal.textContent = "₹0";
+        return;
+      }
+      let total = 0;
+      cart.forEach((entry) => {
+        const li = document.createElement("li");
+        li.className = "d-flex justify-content-between align-items-center mb-2";
+        li.innerHTML = `
+          <div class="mr-2">
+            <div class="font-weight-semibold">${entry.name}</div>
+            <div class="btn-group btn-group-sm mt-1" role="group">
+              <button type="button" class="btn btn-light cart-dec" data-id="${entry.id}">-</button>
+              <button type="button" class="btn btn-light disabled">${entry.qty}</button>
+              <button type="button" class="btn btn-light cart-inc" data-id="${entry.id}">+</button>
+              <button type="button" class="btn btn-outline-danger cart-rm" data-id="${entry.id}">Remove</button>
+            </div>
+          </div>
+          <div>${formatPrice(entry.price * entry.qty)}</div>
+        `;
+        cartList.appendChild(li);
+        total += entry.price * entry.qty;
+      });
+      cartTotal.textContent = formatPrice(total);
+    }
+
+    function persistCart() {
+      try {
+        const arr = [];
+        cart.forEach((entry) => arr.push({ id: entry.id, name: entry.name, price: entry.price, qty: entry.qty }));
+        localStorage.setItem("hf_cart_v1", JSON.stringify(arr));
+      } catch (e) {}
+    }
+
+    function loadCart() {
+      try {
+        const raw = localStorage.getItem("hf_cart_v1");
+        if (!raw) return;
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return;
+        arr.forEach((it) => {
+          if (!it || !it.id || !it.name || !it.price || !it.qty) return;
+          cart.set(String(it.id), { id: String(it.id), name: it.name, price: Number(it.price), qty: Number(it.qty) });
+        });
+      } catch (e) {}
+    }
+
+    function addToCart(el) {
+      const id = String(el.getAttribute("data-id") || "");
+      const name = el.getAttribute("data-name");
+      const price = parseFloat(el.getAttribute("data-price") || "0");
+      if (!id || !name || !price) return;
+      if (!cart.has(id)) {
+        cart.set(id, { name, price, qty: 1 });
+      } else {
+        cart.get(id).qty += 1;
+      }
+      cart.get(id).id = id;
+      updateCartUI();
+      persistCart();
+    }
+
+    function applyFiltersAndSort() {
+      const query = (searchInput.value || "").toLowerCase();
+      let visible = [];
+
+      items.forEach((item) => {
+        const category = item.getAttribute("data-category");
+        const name = (item.getAttribute("data-name") || "").toLowerCase();
+        const desc = (item.getAttribute("data-description") || "").toLowerCase();
+        const tag = (item.getAttribute("data-tag") || "").toLowerCase();
+        const matchesCategory = activeCategory === "all" || category === activeCategory;
+        const matchesSearch =
+          !query || name.includes(query) || desc.includes(query) || tag.includes(query);
+
+        if (matchesCategory && matchesSearch) {
+          visible.push(item);
+        }
+      });
+
+      visible.sort((a, b) => {
+        const pa = parseFloat(a.getAttribute("data-price") || "0");
+        const pb = parseFloat(b.getAttribute("data-price") || "0");
+        if (activeSort === "price_asc") return pa - pb;
+        if (activeSort === "price_desc") return pb - pa;
+        return 0;
+      });
+
+      const grid = document.getElementById("marketplace-grid");
+      items.forEach((item) => item.classList.add("d-none"));
+      visible.forEach((item) => {
+        item.classList.remove("d-none");
+        grid.appendChild(item);
+      });
+
+      if (emptyState) emptyState.classList.toggle("d-none", visible.length > 0);
+      if (countLabel) {
+        countLabel.textContent =
+          visible.length === 0
+            ? "0 products"
+            : visible.length === 1
+            ? "1 product"
+            : visible.length + " products";
+      }
+    }
+
+    if (searchInput) searchInput.addEventListener("input", applyFiltersAndSort);
+
+    sortButtons.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        sortButtons.forEach((b) => b.classList.remove("active"));
+        this.classList.add("active");
+        activeSort = this.getAttribute("data-sort") || "recommended";
+        applyFiltersAndSort();
+      });
+    });
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", function () {
+        chips.forEach((c) => c.classList.remove("active"));
+        this.classList.add("active");
+        activeCategory = this.getAttribute("data-category") || "all";
+        applyFiltersAndSort();
+      });
+    });
+
+    document.getElementById("marketplace-grid").addEventListener("click", function (e) {
+      const addBtn = e.target.closest(".marketplace-add-btn");
+      const quickBtn = e.target.closest(".marketplace-quick-btn");
+      const card = e.target.closest(".marketplace-item");
+      if (!card) return;
+      if (addBtn) addToCart(card);
+      if (quickBtn) {
+        const name = card.getAttribute("data-name") || "";
+        const desc = card.getAttribute("data-description") || "";
+        const price = parseFloat(card.getAttribute("data-price") || "0");
+        alert(name + "\n\n" + desc + "\n\n{{ _('Price:') }} " + formatPrice(price));
+      }
+    });
+
+    cartList.addEventListener("click", function (e) {
+      const inc = e.target.closest(".cart-inc");
+      const dec = e.target.closest(".cart-dec");
+      const rm = e.target.closest(".cart-rm");
+      const id = (inc || dec || rm)?.getAttribute("data-id");
+      if (!id || !cart.has(id)) return;
+      const entry = cart.get(id);
+      if (inc) entry.qty += 1;
+      if (dec) entry.qty = Math.max(1, entry.qty - 1);
+      if (rm) cart.delete(id);
+      updateCartUI();
+      persistCart();
+    });
+
+    if (clearCartBtn) {
+      clearCartBtn.addEventListener("click", function () {
+        cart.clear();
+        updateCartUI();
+        persistCart();
+      });
+    }
+
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener("click", function () {
+        if (cart.size === 0) {
+          alert("{{ _('Your cart is empty. Add some products first.') }}");
+          return;
+        }
+        // ensure cart is persisted for checkout page
+        persistCart();
+        window.location.href = "{{ url_for('marketplace_checkout') }}";
+      });
+    }
+
+    loadCart();
+    applyFiltersAndSort();
+    updateCartUI();
+  })();
+</script>
+
+{% endblock %}
+

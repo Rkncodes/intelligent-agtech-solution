@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+
+# Data (CRITICAL)
+Data-raw/
+Data_to_consider/
+New Plant Diseases Dataset(Augmented)/
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+
+# Large files
+*.h5

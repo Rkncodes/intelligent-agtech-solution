@@ -1,0 +1,73 @@
+{% extends 'layout.html' %} {% block body %}
+
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <h2 class="h4 mb-1">{{ _('Fertilizer advisor') }}</h2>
+            <p class="text-muted mb-4">
+              {{ _('Compare your current NPK levels with the ideal range for your crop and get targeted advice.') }}
+            </p>
+
+            <form method="POST" action="{{ url_for('fert_recommend') }}">
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="Nitrogen">{{ _('Nitrogen (N)') }}</label>
+                  <input type="number" class="form-control" id="Nitrogen" name="nitrogen" placeholder="e.g. 80" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="Phosphorous">{{ _('Phosphorus (P)') }}</label>
+                  <input type="number" class="form-control" id="Phosphorous" name="phosphorous" placeholder="e.g. 40" required />
+                </div>
+                <div class="form-group col-md-4">
+                  <label class="small font-weight-semibold" for="Pottasium">{{ _('Potassium (K)') }}</label>
+                  <input type="number" class="form-control" id="Pottasium" name="pottasium" placeholder="e.g. 40" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="small font-weight-semibold" for="crop">{{ _('Crop you want to grow') }}</label>
+                <select name="cropname" id="crop" class="form-control" required>
+                  <option value="">{{ _('Select crop') }}</option>
+                  <option>rice</option>
+                  <option>maize</option>
+                  <option>chickpea</option>
+                  <option>kidneybeans</option>
+                  <option>pigeonpeas</option>
+                  <option>mothbeans</option>
+                  <option>mungbean</option>
+                  <option>blackgram</option>
+                  <option>lentil</option>
+                  <option>pomegranate</option>
+                  <option>banana</option>
+                  <option>mango</option>
+                  <option>grapes</option>
+                  <option>watermelon</option>
+                  <option>muskmelon</option>
+                  <option>apple</option>
+                  <option>orange</option>
+                  <option>papaya</option>
+                  <option>coconut</option>
+                  <option>cotton</option>
+                  <option>jute</option>
+                  <option>coffee</option>
+                </select>
+              </div>
+
+              <div class="d-flex justify-content-end mt-3">
+                <button type="submit" class="btn btn-success">
+                  {{ _('Get fertilizer advice') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+

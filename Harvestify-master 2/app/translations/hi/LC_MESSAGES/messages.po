@@ -1,0 +1,419 @@
+# Hindi translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-02 23:37+0530\n"
+"PO-Revision-Date: 2026-03-02 23:37+0530\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: hi\n"
+"Language-Team: hi <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/checkout.html:9
+msgid "Checkout"
+msgstr "चेकआउट"
+
+#: app/templates/checkout.html:10
+msgid "Complete your delivery details and confirm your order."
+msgstr "डिलीवरी विवरण भरें और अपना ऑर्डर पुष्टि करें।"
+
+#: app/templates/checkout.html:19
+msgid "Contact"
+msgstr "संपर्क"
+
+#: app/templates/checkout.html:22
+msgid "Full name"
+msgstr "पूरा नाम"
+
+#: app/templates/checkout.html:26
+msgid "Phone"
+msgstr "फ़ोन"
+
+#: app/templates/checkout.html:31
+msgid "Email (optional)"
+msgstr "ईमेल (वैकल्पिक)"
+
+#: app/templates/checkout.html:37
+msgid "Delivery address"
+msgstr "डिलीवरी पता"
+
+#: app/templates/checkout.html:39
+msgid "Address line 1"
+msgstr "पता पंक्ति 1"
+
+#: app/templates/checkout.html:43
+msgid "Address line 2 (optional)"
+msgstr "पता पंक्ति 2 (वैकल्पिक)"
+
+#: app/templates/checkout.html:48
+msgid "City"
+msgstr "शहर"
+
+#: app/templates/checkout.html:52
+msgid "State"
+msgstr "राज्य"
+
+#: app/templates/checkout.html:56
+msgid "Pincode"
+msgstr "पिनकोड"
+
+#: app/templates/checkout.html:63 app/templates/order_confirmation.html:33
+msgid "Payment"
+msgstr "भुगतान"
+
+#: app/templates/checkout.html:67
+msgid "Cash on delivery (demo)"
+msgstr "कैश ऑन डिलीवरी (डेमो)"
+
+#: app/templates/checkout.html:71
+msgid "UPI (demo)"
+msgstr "UPI (डेमो)"
+
+#: app/templates/checkout.html:76
+msgid "Order notes (optional)"
+msgstr ""
+
+#: app/templates/checkout.html:81 app/templates/orders.html:10
+msgid "Back to marketplace"
+msgstr ""
+
+#: app/templates/checkout.html:82
+msgid "Place order"
+msgstr ""
+
+#: app/templates/checkout.html:93
+msgid "Order summary"
+msgstr ""
+
+#: app/templates/checkout.html:94 app/templates/orders.html:7
+msgid "My orders"
+msgstr ""
+
+#: app/templates/checkout.html:96
+msgid "Review items before placing your order."
+msgstr ""
+
+#: app/templates/checkout.html:97
+msgid "Your cart is empty."
+msgstr ""
+
+#: app/templates/checkout.html:101 app/templates/order_confirmation.html:71
+msgid "Subtotal"
+msgstr ""
+
+#: app/templates/checkout.html:105 app/templates/order_confirmation.html:75
+msgid "Shipping"
+msgstr ""
+
+#: app/templates/checkout.html:110 app/templates/order_confirmation.html:52
+#: app/templates/order_confirmation.html:80
+msgid "Total"
+msgstr ""
+
+#: app/templates/crop.html:9
+msgid "Crop recommendation"
+msgstr ""
+
+#: app/templates/crop.html:11
+msgid ""
+"Enter your soil nutrients, pH and rainfall. Harvestify will suggest a "
+"crop that fits your field."
+msgstr ""
+
+#: app/templates/crop.html:17 app/templates/fertilizer.html:17
+msgid "Nitrogen (N)"
+msgstr ""
+
+#: app/templates/crop.html:21 app/templates/fertilizer.html:21
+msgid "Phosphorus (P)"
+msgstr ""
+
+#: app/templates/crop.html:25 app/templates/fertilizer.html:25
+msgid "Potassium (K)"
+msgstr ""
+
+#: app/templates/crop.html:32
+msgid "Soil pH"
+msgstr ""
+
+#: app/templates/crop.html:36
+msgid "Rainfall (mm)"
+msgstr ""
+
+#: app/templates/crop.html:40
+msgid "Location"
+msgstr ""
+
+#: app/templates/crop.html:48
+msgid "Tip: reuse these values when exploring products in the marketplace."
+msgstr ""
+
+#: app/templates/crop.html:51
+msgid "Get crop suggestion"
+msgstr ""
+
+#: app/templates/disease.html:9
+msgid "Disease detection"
+msgstr ""
+
+#: app/templates/disease.html:11
+msgid ""
+"Upload a clear photo of a single leaf. Harvestify will try to detect the "
+"disease and recommend treatment."
+msgstr ""
+
+#: app/templates/disease.html:16
+msgid "Leaf image"
+msgstr ""
+
+#: app/templates/disease.html:34
+msgid "Analyze image"
+msgstr ""
+
+#: app/templates/fertilizer.html:9
+msgid "Fertilizer advisor"
+msgstr ""
+
+#: app/templates/fertilizer.html:11
+msgid ""
+"Compare your current NPK levels with the ideal range for your crop and "
+"get targeted advice."
+msgstr ""
+
+#: app/templates/fertilizer.html:31
+msgid "Crop you want to grow"
+msgstr ""
+
+#: app/templates/fertilizer.html:33
+msgid "Select crop"
+msgstr ""
+
+#: app/templates/fertilizer.html:61
+msgid "Get fertilizer advice"
+msgstr ""
+
+#: app/templates/layout.html:171
+msgid "Home"
+msgstr ""
+
+#: app/templates/layout.html:174
+msgid "Crop"
+msgstr ""
+
+#: app/templates/layout.html:177
+msgid "Fertilizer"
+msgstr ""
+
+#: app/templates/layout.html:180
+msgid "Disease"
+msgstr ""
+
+#: app/templates/layout.html:183 app/templates/marketplace.html:8
+msgid "Marketplace"
+msgstr ""
+
+#: app/templates/layout.html:225
+msgid "Smart farming insights for better decisions."
+msgstr ""
+
+#: app/templates/marketplace.html:10
+msgid "Buy and sell farm inputs in one place."
+msgstr ""
+
+#: app/templates/marketplace.html:12
+msgid ""
+"Discover seeds, fertilizers, tools and services — or create your own "
+"listing for other farmers to see."
+msgstr ""
+
+#: app/templates/marketplace.html:20
+msgid "Search for seeds, organic fertilizer, sensors..."
+msgstr ""
+
+#: app/templates/marketplace.html:24
+msgid "Sort by:"
+msgstr ""
+
+#: app/templates/marketplace.html:26
+msgid "Recommended"
+msgstr ""
+
+#: app/templates/marketplace.html:29
+msgid "Price ↑"
+msgstr ""
+
+#: app/templates/marketplace.html:32
+msgid "Price ↓"
+msgstr ""
+
+#: app/templates/marketplace.html:39
+msgid "Your cart"
+msgstr ""
+
+#: app/templates/marketplace.html:43 app/templates/marketplace.html:211
+msgid "Cart is empty. Click “Add” on a product."
+msgstr ""
+
+#: app/templates/marketplace.html:46
+msgid "Estimated total"
+msgstr ""
+
+#: app/templates/marketplace.html:51
+msgid "Clear"
+msgstr ""
+
+#: app/templates/marketplace.html:54
+msgid "Proceed to checkout"
+msgstr ""
+
+#: app/templates/marketplace.html:58
+msgid "(Demo checkout – confirm your plan, no real payments.)"
+msgstr ""
+
+#: app/templates/marketplace.html:72
+msgid "Categories"
+msgstr ""
+
+#: app/templates/marketplace.html:75
+msgid "All products"
+msgstr ""
+
+#: app/templates/marketplace.html:78
+msgid "Seeds"
+msgstr ""
+
+#: app/templates/marketplace.html:81
+msgid "Fertilizers"
+msgstr ""
+
+#: app/templates/marketplace.html:84
+msgid "Tools & equipment"
+msgstr ""
+
+#: app/templates/marketplace.html:87
+msgid "Services"
+msgstr ""
+
+#: app/templates/marketplace.html:95
+msgid "Sell something"
+msgstr ""
+
+#: app/templates/marketplace.html:97
+msgid ""
+"List your own seeds, inputs or services. Other farmers can discover them "
+"here."
+msgstr ""
+
+#: app/templates/marketplace.html:101
+msgid "Name"
+msgstr ""
+
+#: app/templates/marketplace.html:105
+msgid "Category"
+msgstr ""
+
+#: app/templates/marketplace.html:114
+msgid "Price (₹)"
+msgstr ""
+
+#: app/templates/marketplace.html:118
+msgid "Tag (optional)"
+msgstr ""
+
+#: app/templates/marketplace.html:122
+msgid "Short description"
+msgstr ""
+
+#: app/templates/marketplace.html:126
+msgid "Publish listing"
+msgstr ""
+
+#: app/templates/marketplace.html:134
+msgid "Featured products"
+msgstr ""
+
+#: app/templates/marketplace.html:168
+msgid "Quick view"
+msgstr ""
+
+#: app/templates/marketplace.html:169
+msgid "Add"
+msgstr ""
+
+#: app/templates/marketplace.html:179
+msgid "No products match your filters. Try changing category or search text."
+msgstr ""
+
+#: app/templates/marketplace.html:347
+msgid "Price:"
+msgstr ""
+
+#: app/templates/marketplace.html:376
+msgid "Your cart is empty. Add some products first."
+msgstr ""
+
+#: app/templates/order_confirmation.html:11
+msgid "Order confirmed"
+msgstr ""
+
+#: app/templates/order_confirmation.html:12
+msgid "Order ID:"
+msgstr ""
+
+#: app/templates/order_confirmation.html:15
+msgid "Status:"
+msgstr ""
+
+#: app/templates/order_confirmation.html:23
+msgid "Delivery"
+msgstr ""
+
+#: app/templates/order_confirmation.html:34
+msgid "Method:"
+msgstr ""
+
+#: app/templates/order_confirmation.html:35
+msgid "Placed at"
+msgstr ""
+
+#: app/templates/order_confirmation.html:44
+msgid "Items"
+msgstr ""
+
+#: app/templates/order_confirmation.html:49
+msgid "Item"
+msgstr ""
+
+#: app/templates/order_confirmation.html:50
+msgid "Unit"
+msgstr ""
+
+#: app/templates/order_confirmation.html:51
+msgid "Qty"
+msgstr ""
+
+#: app/templates/order_confirmation.html:87
+msgid "Continue shopping"
+msgstr ""
+
+#: app/templates/order_confirmation.html:88
+msgid "View my orders"
+msgstr ""
+
+#: app/templates/orders.html:8
+msgid "Recent checkout history from this device."
+msgstr ""
+
+#: app/templates/orders.html:16
+msgid "No orders yet. Go to marketplace and checkout."
+msgstr ""
+
