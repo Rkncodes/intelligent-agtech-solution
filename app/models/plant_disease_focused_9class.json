@@ -1,0 +1,46 @@
+{
+  "classes": [
+    "Apple___Apple_scab",
+    "Apple___Cedar_apple_rust",
+    "Grape___Black_rot",
+    "Potato___Early_blight",
+    "Potato___Late_blight",
+    "Potato___healthy",
+    "Tomato___Early_blight",
+    "Tomato___Late_blight",
+    "Tomato___healthy"
+  ],
+  "architecture": "ResNet9(3, 9)",
+  "preprocessing": "Resize(256), CenterCrop(256), ToTensor() - no normalisation",
+  "trained_layers": "res2 + classifier (conv1-conv4 frozen from plant_disease_model.pth)",
+  "best_val_score": 0.7394528596939518,
+  "low_confidence_threshold": 0.7,
+  "low_confidence_note": "chosen on validation data: at 0.70 kept field predictions were 68% (val) / 73% (test) correct; flags ~63% of field photos and ~8.5% of lab photos",
+  "evaluation": {
+    "PlantVillage held-out test (lab photos)": {
+      "n": 698,
+      "accuracy": 0.9799,
+      "macro_f1": 0.9802,
+      "original_model_accuracy": 0.99
+    },
+    "PlantDoc test folder (field/web photos, never trained on)": {
+      "n": 70,
+      "accuracy": 0.4571,
+      "macro_f1": 0.4435,
+      "original_model_accuracy": 0.1714
+    },
+    "Review images - Wikimedia Commons (independent)": {
+      "n": 17,
+      "accuracy": 0.4706,
+      "macro_f1": 0.4,
+      "original_model_accuracy": 0.2941
+    },
+    "Review images - PlantDoc-origin (excluded from training)": {
+      "n": 8,
+      "accuracy": 0.625,
+      "macro_f1": 0.6667,
+      "original_model_accuracy": 0.125
+    }
+  },
+  "training_data": "PlantVillage originals (capped 400/class train+val) + PlantDoc train folder (CC BY 4.0); near-duplicates across splits removed by perceptual hash"
+}

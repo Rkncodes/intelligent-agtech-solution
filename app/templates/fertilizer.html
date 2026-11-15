@@ -11,19 +11,25 @@
               {{ _('Compare your current NPK levels with the ideal range for your crop and get targeted advice.') }}
             </p>
 
+            {% if errors %}
+            <div class="alert alert-danger small" role="alert">
+              <ul class="mb-0 pl-3">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            </div>
+            {% endif %}
+
             <form method="POST" action="{{ url_for('fert_recommend') }}">
               <div class="form-row">
                 <div class="form-group col-md-4">
                   <label class="small font-weight-semibold" for="Nitrogen">{{ _('Nitrogen (N)') }}</label>
-                  <input type="number" class="form-control" id="Nitrogen" name="nitrogen" placeholder="e.g. 80" required />
+                  <input type="number" class="form-control" id="Nitrogen" name="nitrogen" placeholder="e.g. 80" min="0" max="500" step="any" value="{{ form.nitrogen if form }}" required />
                 </div>
                 <div class="form-group col-md-4">
                   <label class="small font-weight-semibold" for="Phosphorous">{{ _('Phosphorus (P)') }}</label>
-                  <input type="number" class="form-control" id="Phosphorous" name="phosphorous" placeholder="e.g. 40" required />
+                  <input type="number" class="form-control" id="Phosphorous" name="phosphorous" placeholder="e.g. 40" min="0" max="500" step="any" value="{{ form.phosphorous if form }}" required />
                 </div>
                 <div class="form-group col-md-4">
                   <label class="small font-weight-semibold" for="Pottasium">{{ _('Potassium (K)') }}</label>
-                  <input type="number" class="form-control" id="Pottasium" name="pottasium" placeholder="e.g. 40" required />
+                  <input type="number" class="form-control" id="Pottasium" name="pottasium" placeholder="e.g. 40" min="0" max="500" step="any" value="{{ form.pottasium if form }}" required />
                 </div>
               </div>
 
@@ -31,28 +37,28 @@
                 <label class="small font-weight-semibold" for="crop">{{ _('Crop you want to grow') }}</label>
                 <select name="cropname" id="crop" class="form-control" required>
                   <option value="">{{ _('Select crop') }}</option>
-                  <option>rice</option>
-                  <option>maize</option>
-                  <option>chickpea</option>
-                  <option>kidneybeans</option>
-                  <option>pigeonpeas</option>
-                  <option>mothbeans</option>
-                  <option>mungbean</option>
-                  <option>blackgram</option>
-                  <option>lentil</option>
-                  <option>pomegranate</option>
-                  <option>banana</option>
-                  <option>mango</option>
-                  <option>grapes</option>
-                  <option>watermelon</option>
-                  <option>muskmelon</option>
-                  <option>apple</option>
-                  <option>orange</option>
-                  <option>papaya</option>
-                  <option>coconut</option>
-                  <option>cotton</option>
-                  <option>jute</option>
-                  <option>coffee</option>
+                  <option{% if form and form.cropname == "rice" %} selected{% endif %}>rice</option>
+                  <option{% if form and form.cropname == "maize" %} selected{% endif %}>maize</option>
+                  <option{% if form and form.cropname == "chickpea" %} selected{% endif %}>chickpea</option>
+                  <option{% if form and form.cropname == "kidneybeans" %} selected{% endif %}>kidneybeans</option>
+                  <option{% if form and form.cropname == "pigeonpeas" %} selected{% endif %}>pigeonpeas</option>
+                  <option{% if form and form.cropname == "mothbeans" %} selected{% endif %}>mothbeans</option>
+                  <option{% if form and form.cropname == "mungbean" %} selected{% endif %}>mungbean</option>
+                  <option{% if form and form.cropname == "blackgram" %} selected{% endif %}>blackgram</option>
+                  <option{% if form and form.cropname == "lentil" %} selected{% endif %}>lentil</option>
+                  <option{% if form and form.cropname == "pomegranate" %} selected{% endif %}>pomegranate</option>
+                  <option{% if form and form.cropname == "banana" %} selected{% endif %}>banana</option>
+                  <option{% if form and form.cropname == "mango" %} selected{% endif %}>mango</option>
+                  <option{% if form and form.cropname == "grapes" %} selected{% endif %}>grapes</option>
+                  <option{% if form and form.cropname == "watermelon" %} selected{% endif %}>watermelon</option>
+                  <option{% if form and form.cropname == "muskmelon" %} selected{% endif %}>muskmelon</option>
+                  <option{% if form and form.cropname == "apple" %} selected{% endif %}>apple</option>
+                  <option{% if form and form.cropname == "orange" %} selected{% endif %}>orange</option>
+                  <option{% if form and form.cropname == "papaya" %} selected{% endif %}>papaya</option>
+                  <option{% if form and form.cropname == "coconut" %} selected{% endif %}>coconut</option>
+                  <option{% if form and form.cropname == "cotton" %} selected{% endif %}>cotton</option>
+                  <option{% if form and form.cropname == "jute" %} selected{% endif %}>jute</option>
+                  <option{% if form and form.cropname == "coffee" %} selected{% endif %}>coffee</option>
                 </select>
               </div>
 

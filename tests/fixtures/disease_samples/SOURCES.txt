@@ -1,0 +1,53 @@
+Harvestify disease-detection regression samples (internal; not shown in the app)
+===============================================================================
+
+Source
+------
+"New Plant Diseases Dataset (Augmented)" (Kaggle, vipoooool), folder test/test/.
+This 33-image folder is separate from the train/ and valid/ folders that
+notebooks/plant-disease-classification-resnet-99-2.ipynb trained and validated on.
+
+Retrieved from two independent GitHub mirrors (Git LFS); every file's SHA-256
+matched the LFS object id recorded in both mirrors:
+  bhataakib02/Apple-Disease-Dataset   raw/plantvillage/test/test/
+  gokulr200509/my_app                 PLANT-DISEASE-IDENTIFICATION/test/
+
+Ground-truth labels come from the dataset file names.
+Selection rule: image #1 of each chosen class (no cherry-picking by confidence).
+Tomato Late Blight is not present in the test folder, so it is not in the gallery.
+
+File                     Ground-truth class            SHA-256
+TomatoHealthy1.JPG       Tomato___healthy              0cdb5a08c6cffb49534c910488ee9f20d24bb97604d773ad8c059bcd9c449cab
+TomatoEarlyBlight1.JPG   Tomato___Early_blight         a464236bc9ea8dc87b7d77863893056d8b8db696be6db66469bbc46d008b6e1f
+PotatoEarlyBlight1.JPG   Potato___Early_blight         621f98780294e0dd261fd10713580be4a2128af881bbd0fb7829fa5c5325de69
+PotatoHealthy1.JPG       Potato___healthy              081328b5e520f5606bf763771d08a7085f040ecad789f5d422b2f48db14fd21a
+AppleCedarRust1.JPG      Apple___Cedar_apple_rust      db547445730b15fcd77db0806715757135c138b32da132187b4bc05404f0393c
+
+Training-data overlap
+---------------------
+The training set itself is not in this repository, so overlap cannot be ruled out
+directly. The Kaggle train/valid sets were built by augmenting PlantVillage originals,
+so test images were compared against the PlantVillage originals
+(github.com/spMohanty/PlantVillage-Dataset, raw/color) using a 256-bit difference hash,
+also trying flips and 90/180/270-degree rotations.
+
+Apple Cedar Rust (275 originals): test images 2, 3 and 4 are exact matches
+(distance 0/256, two of them rotated 180 degrees) of PlantVillage originals, so they
+were very likely seen during training. AppleCedarRust1 (used here) has no exact match
+(closest distance 55/256); it looks brightness-adjusted, so it may still be an
+augmented copy of an original.
+
+Other classes in this gallery (closest PlantVillage original, distance out of 256):
+  Potato___healthy       (152 originals):  PotatoHealthy1 0 (used), PotatoHealthy2 0 (flipped)
+  Potato___Early_blight  (1000 originals): PotatoEarlyBlight1-5 all 0 (PotatoEarlyBlight1 used)
+  Tomato___Early_blight  (1000 originals): TomatoEarlyBlight1-6 all 0 (TomatoEarlyBlight1 used)
+  Tomato___healthy       (1591 originals): TomatoHealthy1 0 (rotated 180, used), TomatoHealthy2 0,
+                                           TomatoHealthy4 22, TomatoHealthy3 97 (no match)
+
+So 4 of the 5 gallery images are exact copies of PlantVillage originals; the fifth
+(AppleCedarRust1) is inconclusive. Since the Kaggle train/valid sets were generated from
+those originals, the model has very probably seen these images (or augmented versions)
+during training or validation.
+
+Conclusion: treat these samples as in-distribution examples that demonstrate the
+pipeline, not as evidence of accuracy on new or real-world images.

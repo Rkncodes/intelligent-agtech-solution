@@ -1,0 +1,12 @@
+filename,verified_label,http_status,predicted_label,predicted_crop,predicted_disease,confidence,low_confidence_flag,warnings,top3_alternatives,correct,crop_correct
+Apple_Cedar_Rust_01.jpg,Apple___Cedar_apple_rust,200,Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot,Corn (maize),Cercospora leaf spot Gray leaf spot,0.5743,True,,"Pepper,_bell___Bacterial_spot 19.2%; Grape___Esca_(Black_Measles) 18.9%",False,False
+Apple_Scab_01.jpg,Apple___Apple_scab,200,Tomato___Early_blight,Tomato,Early blight,0.8432,False,,Apple___Apple_scab 8.3%; Tomato___Late_blight 3.6%,False,False
+Corn_Common_Rust_01.jpg,Corn_(maize)___Common_rust_,200,Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot,Corn (maize),Cercospora leaf spot Gray leaf spot,0.5430,True,,Corn_(maize)___Northern_Leaf_Blight 44.7%; Corn_(maize)___Common_rust_ 0.6%,False,True
+Grape_Black_Rot_01.jpg,Grape___Black_rot,200,Apple___Cedar_apple_rust,Apple,Cedar apple rust,0.9838,False,,Tomato___Early_blight 0.7%; Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot 0.5%,False,False
+Grape_Black_Rot_02.jpg,Grape___Black_rot,200,Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot,Corn (maize),Cercospora leaf spot Gray leaf spot,0.8897,False,,Corn_(maize)___Northern_Leaf_Blight 7.5%; Corn_(maize)___Common_rust_ 3.3%,False,False
+Potato_Early_Blight_01.jpg,Potato___Early_blight,200,Tomato___Late_blight,Tomato,Late blight,0.7566,False,,Tomato___Early_blight 17.4%; Corn_(maize)___Northern_Leaf_Blight 3.3%,False,False
+Potato_Healthy_01.jpg,Potato___healthy,200,Tomato___Early_blight,Tomato,Early blight,0.9016,False,,Tomato___Septoria_leaf_spot 4.3%; Apple___Apple_scab 3.3%,False,False
+Potato_Late_Blight_01.jpg,Potato___Late_blight,200,Tomato___Late_blight,Tomato,Late blight,0.9901,False,,"Tomato___Early_blight 0.9%; Pepper,_bell___healthy 0.0%",False,False
+Tomato_Early_Blight_01.jpg,Tomato___Early_blight,200,Tomato___Early_blight,Tomato,Early blight,0.9523,False,,Tomato___Late_blight 3.8%; Apple___Apple_scab 0.8%,True,True
+Tomato_Healthy_01.jpg,Tomato___healthy,200,"Pepper,_bell___Bacterial_spot","Pepper, bell",Bacterial spot,0.9943,False,,"Pepper,_bell___healthy 0.5%; Corn_(maize)___healthy 0.0%",False,False
+Tomato_Late_Blight_01.jpg,Tomato___Late_blight,200,Tomato___Late_blight,Tomato,Late blight,0.9944,False,,Tomato___Early_blight 0.3%; Corn_(maize)___Common_rust_ 0.2%,True,True

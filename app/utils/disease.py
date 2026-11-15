@@ -161,31 +161,24 @@ disease_dic = {
         
         <br/>3. The fungicides labeled as pruning-wound protectants, consider using alternative materials, such as a wound sealant with 5 percent boric acid in acrylic paint (Tech-Gro B-Lock), which is effective against Eutypa dieback and Esca, or an essential oil (Safecoat VitiSeal).""",
 
-    'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)': """ <b>Crop</b>: Grape <br/>Disease: Leaf Blight<br/>
+    'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)': """ <b>Crop</b>: Grape <br/>Disease: Leaf Blight (Isariopsis Leaf Spot)<br/>
         <br/> Cause of disease:
 
-        <br/><br/> 1. Apple scab overwinters primarily in fallen leaves and in the soil. Disease development is favored by wet, cool weather that generally occurs in spring and early summer.
+        <br/><br/> 1. Leaf blight of grape is caused by the fungus Pseudocercospora vitis (previously called Isariopsis clavispora). It produces irregular, dark reddish-brown to black spots on the leaves, which may have a yellowish border and later dry out and turn brittle. Severely affected leaves fall early, weakening the vine.
 
-        <br/> 2. Fungal spores are carried by wind, rain or splashing water from the ground to flowers, leaves or fruit. During damp or rainy periods, newly opening apple leaves are extremely susceptible to infection. The longer the leaves remain wet, the more severe the infection will be. Apple scab spreads rapidly between 55-75 degrees Fahrenheit.
+        <br/> 2. The fungus survives on infected fallen leaves and plant debris in the vineyard. Its spores are spread by wind and splashing rain, and infection is favoured by warm, humid weather and long periods of leaf wetness, so the disease is usually worse late in the season and in dense, poorly ventilated canopies.
         <br/><br/> How to prevent/cure the disease <br/>
-        <br/>1. Choose resistant varieties when possible.
+        <br/>1. Collect and destroy fallen infected leaves and pruned material to reduce the fungus that can start new infections.
 
-        <br/>2. Rake under trees and destroy infected leaves to reduce the number of fungal spores available to start the disease cycle over again next spring
-        
-        <br/>3. Water in the evening or early morning hours (avoid overhead irrigation) to give the leaves time to dry out before infection can occur.
-        <br/>4. Spread a 3- to 6-inch layer of compost under trees, keeping it away from the trunk, to cover soil and prevent splash dispersal of the fungal spores.""",
+        <br/>2. Prune and train the vines to keep the canopy open, so that air moves freely and leaves dry quickly after rain.
+
+        <br/>3. Avoid overhead irrigation and water early in the day so the leaves do not stay wet for long.
+
+        <br/>4. Where the disease is a regular problem, apply a protective fungicide labelled for grape leaf spots (for example, copper-based products or mancozeb), following local agricultural extension advice and the product label.""",
 
     'Grape___healthy': """ <b>Crop</b>: Grape <br/>Disease: No disease<br/>
 
         <br/><br/> Don't worry. Your crop is healthy. Keep it up !!!""",
-
-
-    'Corn_(maize)___healthy': """ <b>Crop</b>: Corn(maize) <br/>Disease: No disease<br/>
-
-        <br/><br/> Don't worry. Your crop is healthy. Keep it up !!!""",
-
-
-    'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)': """<b> Crop</b> : Grape <br/> Disease: Leaf Spot""",
 
 
     'Orange___Haunglongbing_(Citrus_greening)': """ <b>Crop</b>: Orange <br/>Disease: Citrus Greening<br/>
@@ -432,7 +425,7 @@ disease_dic = {
         <br/>3. Overhead irrigation or prolonged periods of rain can help reduce populations.""",
 
 
-    'Tomato___Target_Spo': """ <b>Crop</b>: Tomato <br/>Disease: Target Spot<br/>
+    'Tomato___Target_Spot':""" <b>Crop</b>: Tomato <br/>Disease: Target Spot<br/>
         <br/> Cause of disease:
 
         <br/><br/> 1. The fungus causes plants to lose their leaves; it is a major disease. If infection occurs before the fruit has developed, yields are low.

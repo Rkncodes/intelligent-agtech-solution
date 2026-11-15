@@ -1,12 +1,13 @@
 # Importing essential libraries and modules
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, abort
+from flask import Flask, render_template, request, jsonify, redirect, url_for, abort, send_from_directory
 from flask_babel import Babel, gettext as _
 from markupsafe import Markup
 import numpy as np
 import pandas as pd
 from utils.disease import disease_dic
-from utils.fertilizer import fertilizer_dic
+from utils.disease_info import DISEASE_INFO
+from utils.fertilizer import fertilizer_advice, CROP_GROUP
 import requests
 import config
 import pickle
@@ -17,6 +18,8 @@ from PIL import Image
 from utils.model import ResNet9
 from sklearn.ensemble import RandomForestClassifier
 import os
+import re
+import json
 import sqlite3
 # ==============================================================================================
 
@@ -63,11 +66,33 @@ disease_classes = ['Apple___Apple_scab',
                    'Tomato___Tomato_mosaic_virus',
                    'Tomato___healthy']
 
-disease_model_path = 'models/plant_disease_model.pth'
-disease_model = ResNet9(3, len(disease_classes))
-disease_model.load_state_dict(torch.load(
-    disease_model_path, map_location=torch.device('cpu')))
-disease_model.eval()
+ORIGINAL_DISEASE_CLASSES = disease_classes          # class order of plant_disease_model.pth
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models')
+ORIGINAL_MODEL_PATH = os.path.join(MODEL_DIR, 'plant_disease_model.pth')
+FOCUSED_MODEL_PATH = os.path.join(MODEL_DIR, 'plant_disease_focused_9class.pth')
+FOCUSED_META_PATH = os.path.join(MODEL_DIR, 'plant_disease_focused_9class.json')
+
+
+def load_disease_model():
+    """Use the focused 9-class model when it is installed, otherwise the original 38-class checkpoint.
+    Returns (model, class names in output-index order, checkpoint path)."""
+    if os.path.exists(FOCUSED_MODEL_PATH) and os.path.exists(FOCUSED_META_PATH):
+        with open(FOCUSED_META_PATH, encoding='utf-8') as f:
+            classes = json.load(f)['classes']
+        unknown = [c for c in classes if c not in ORIGINAL_DISEASE_CLASSES]
+        if unknown or len(set(classes)) != len(classes):
+            raise RuntimeError(f"Invalid class list in {FOCUSED_META_PATH}: {unknown or 'duplicates'}")
+        path = FOCUSED_MODEL_PATH
+    else:
+        classes, path = ORIGINAL_DISEASE_CLASSES, ORIGINAL_MODEL_PATH
+    model = ResNet9(3, len(classes))
+    model.load_state_dict(torch.load(path, map_location=torch.device('cpu'), weights_only=True))  # strict
+    model.eval()
+    return model, classes, path
+
+
+disease_model, disease_classes, disease_model_path = load_disease_model()
+print(f"Disease model: {os.path.basename(disease_model_path)} ({len(disease_classes)} classes)")
 
 
 # Loading crop recommendation model (retrained from CSV to avoid old pickle incompatibility)
@@ -78,8 +103,11 @@ crop_feature_means = None
 
 def init_crop_model():
     global crop_recommendation_model, crop_feature_means
+    # Resolve the CSV relative to this file (project root/Data-processed), not the working directory
+    crop_csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                 'Data-processed', 'crop_recommendation.csv')
     try:
-        crop_data = pd.read_csv('Data-processed/crop_recommendation.csv')
+        crop_data = pd.read_csv(crop_csv_path)
         feature_cols = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
         X = crop_data[feature_cols]
         y = crop_data['label']
@@ -89,7 +117,8 @@ def init_crop_model():
         )
         model.fit(X, y)
         crop_recommendation_model = model
-    except Exception:
+    except Exception as e:
+        print(f"ERROR: crop recommendation model failed to initialize from {crop_csv_path}: {e!r}")
         crop_recommendation_model = None
 
 
@@ -308,23 +337,29 @@ def predict_image(img, model=disease_model):
     """
     Transforms image to tensor and predicts disease label
     :params: image
-    :return: prediction (string)
+    :return: (prediction (string), confidence (float, 0-1 softmax probability))
     """
+    image = Image.open(io.BytesIO(img)).convert('RGB')
+    probs = disease_probabilities(image, model)
+    # Pick index with highest probability
+    conf, pred = torch.max(probs, dim=0)
+    # Retrieve the class label
+    return disease_classes[pred.item()], conf.item()
+
+
+def disease_probabilities(image, model=disease_model):
+    """Softmax probabilities over disease_classes for an RGB PIL image."""
+    # Training used ToTensor() only on 256x256 images (no normalization),
+    # so inference must not normalize either. CenterCrop keeps the input at
+    # exactly 256x256: ResNet9's fixed pooling fails on aspect ratios >= 2:1.
     transform = transforms.Compose([
         transforms.Resize(256),
+        transforms.CenterCrop(256),
         transforms.ToTensor(),
     ])
-    image = Image.open(io.BytesIO(img))
-    img_t = transform(image)
-    img_u = torch.unsqueeze(img_t, 0)
-
-    # Get predictions from model
-    yb = model(img_u)
-    # Pick index with highest probability
-    _, preds = torch.max(yb, dim=1)
-    prediction = disease_classes[preds[0].item()]
-    # Retrieve the class label
-    return prediction
+    with torch.inference_mode():
+        logits = model(transform(image).unsqueeze(0))
+    return torch.softmax(logits, dim=1)[0]
 
 # ===============================================================================================
 # ------------------------------------ FLASK APP -------------------------------------------------
@@ -357,7 +392,11 @@ def get_locale():
 
 
 # Flask-Babel v4 uses constructor locale_selector
-babel = Babel(app, locale_selector=get_locale)
+babel = Babel(app)
+
+@babel.localeselector
+def get_locale():
+    return 'en'
 
 
 @app.context_processor
@@ -454,68 +493,294 @@ def crop_prediction():
 # render fertilizer recommendation result page
 
 
+MAX_NUTRIENT_VALUE = 500   # input sanity bound; the crop dataset's largest value is 205
+
+
+def load_nutrient_ranges():
+    """Typical N, P, K range per crop, taken from Harvestify's crop dataset."""
+    try:
+        crop_csv = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                'Data-processed', 'crop_recommendation.csv')
+        data = pd.read_csv(crop_csv)
+        grouped = data.groupby('label')[['N', 'P', 'K']].agg(['min', 'max'])
+        return {crop: {n: (float(grouped.loc[crop, (n, 'min')]), float(grouped.loc[crop, (n, 'max')])) for n in 'NPK'}
+                for crop in grouped.index}
+    except Exception as e:
+        print(f"ERROR: nutrient ranges failed to load: {e!r}")
+        return {}
+
+
+nutrient_ranges = load_nutrient_ranges()
+
+
 @ app.route('/fertilizer-predict', methods=['POST'])
 def fert_recommend():
     title = 'Harvestify - Fertilizer Suggestion'
+    form = {k: (request.form.get(k) or '').strip() for k in ('nitrogen', 'phosphorous', 'pottasium', 'cropname')}
+
+    errors = []
+    values = {}
+    for field, nutrient, label in (('nitrogen', 'N', _('Nitrogen (N)')), ('phosphorous', 'P', _('Phosphorus (P)')),
+                                   ('pottasium', 'K', _('Potassium (K)'))):
+        raw = form[field]
+        if raw == '':
+            errors.append(_('%(name)s is required.', name=label))
+            continue
+        try:
+            value = float(raw)
+        except ValueError:
+            errors.append(_('%(name)s must be a number.', name=label))
+            continue
+        if not np.isfinite(value) or value < 0:
+            errors.append(_('%(name)s cannot be negative.', name=label))
+        elif value > MAX_NUTRIENT_VALUE:
+            errors.append(_('%(name)s looks implausibly high (maximum %(max)d).', name=label, max=MAX_NUTRIENT_VALUE))
+        else:
+            values[nutrient] = value
+
+    crop = form['cropname'].lower()
+    if not crop:
+        errors.append(_('Please select a crop.'))
+    elif crop not in nutrient_ranges or crop not in CROP_GROUP:
+        errors.append(_('Please select a crop from the list.'))
+
+    if not nutrient_ranges:
+        errors.append(_('Fertilizer advice is temporarily unavailable. Please try again later.'))
+
+    if errors:
+        return render_template('fertilizer.html', title=title, errors=errors, form=form), 400
+
+    _statuses, advice = fertilizer_advice(crop, values, nutrient_ranges[crop])
+    return render_template('fertilizer-result.html', recommendation=advice, title=title)
+
+# ------------------------- DISEASE ANALYSIS (upload workflow) -------------------------
+
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+ALLOWED_IMAGE_FORMATS = {'JPEG', 'PNG', 'WEBP', 'BMP'}
+# Thresholds measured on 950 PlantVillage leaves, 2,485 PlantDoc field photos and 114 non-leaf images.
+# They flag unsuitable or uncertain inputs; they do not guarantee that a prediction is correct.
+BLANK_STD_THRESHOLD = 5          # lowest brightness std of any real leaf image: 7.8; flat images: 0
+LOW_LIGHT_MEAN, OVEREXPOSED_MEAN = 25, 240   # real leaf images ranged 28-237 mean brightness
+MIN_PLANT_FRACTION = 0.05        # flags 0.2% of leaf images and 54% of non-leaf images
+LOW_CONFIDENCE = 0.70            # chosen on PlantDoc train: flags 0.9% of PlantVillage, ~40% of field photos
+if disease_model_path == FOCUSED_MODEL_PATH:
+    # the focused model ships its own threshold, chosen on its validation data
+    with open(FOCUSED_META_PATH, encoding='utf-8') as _f:
+        LOW_CONFIDENCE = json.load(_f).get('low_confidence_threshold', LOW_CONFIDENCE)
+
+
+def validate_quality_config():
+    """Fail at startup, not per request, if an image-quality threshold is missing or out of range.
+    Brightness values are 0-255 (PIL pixels); fractions and confidence are 0-1."""
+    def number(name, value, low, high):
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not np.isfinite(value) or not low <= value <= high:
+            raise RuntimeError(f"Invalid disease image-quality setting {name}={value!r}; expected a number in [{low}, {high}].")
+    number('BLANK_STD_THRESHOLD', BLANK_STD_THRESHOLD, 0, 255)
+    number('LOW_LIGHT_MEAN', LOW_LIGHT_MEAN, 0, 255)
+    number('OVEREXPOSED_MEAN', OVEREXPOSED_MEAN, 0, 255)
+    number('MIN_PLANT_FRACTION', MIN_PLANT_FRACTION, 0, 1)
+    number('LOW_CONFIDENCE', LOW_CONFIDENCE, 0, 1)
+    if LOW_LIGHT_MEAN >= OVEREXPOSED_MEAN:
+        raise RuntimeError("LOW_LIGHT_MEAN must be lower than OVEREXPOSED_MEAN.")
+
+
+validate_quality_config()
+
+
+class UploadError(ValueError):
+    pass
+
+
+def split_label(label):
+    """'Corn_(maize)___Common_rust_' -> ('Corn (maize)', 'Common rust')"""
+    crop, disease = label.split('___')
+    crop = crop.replace('_', ' ').replace(' ,', ',').strip()
+    disease = disease.replace('_', ' ').strip()
+    return crop, disease[0].upper() + disease[1:]
+
+
+def load_upload(data):
+    """Validate uploaded bytes and return an RGB PIL image, or raise UploadError."""
+    if not data:
+        raise UploadError(_('The selected file is empty.'))
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise UploadError(_('The image is larger than 10 MB. Please choose a smaller image.'))
+    try:
+        probe = Image.open(io.BytesIO(data))
+        image_format = probe.format
+        probe.verify()
+        image = Image.open(io.BytesIO(data))
+        image.load()
+    except Exception:
+        raise UploadError(_('This file is not a readable image, or it is corrupted.'))
+    if image_format not in ALLOWED_IMAGE_FORMATS:
+        raise UploadError(_('Unsupported image format. Please upload a JPG, PNG, WEBP or BMP image.'))
+    return image.convert('RGB')
+
+
+def image_quality(image):
+    """Cheap checks for unusable inputs. Returns (blocking_error or None, [warnings])."""
+    small = image.resize((128, 128))
+    pixels = np.asarray(small, dtype=np.float32)
+    gray = pixels.mean(axis=2)
+    if gray.std() < BLANK_STD_THRESHOLD:
+        return _('The image appears to be blank or a single flat colour, so it cannot be analysed.'), []
+
+    warnings = []
+    if min(image.size) < 128:
+        warnings.append(_('The image resolution is very low; details of the leaf may be lost.'))
+    if gray.mean() < LOW_LIGHT_MEAN:
+        warnings.append(_('The image is very dark. Try a photo taken in better light.'))
+    elif gray.mean() > OVEREXPOSED_MEAN:
+        warnings.append(_('The image is very bright or overexposed.'))
+    hsv = np.asarray(small.convert('HSV'), dtype=np.float32)
+    hue, sat, val = hsv[..., 0] * 360 / 255, hsv[..., 1] / 255, hsv[..., 2] / 255
+    plant_fraction = ((hue >= 20) & (hue <= 170) & (sat >= 0.15) & (val >= 0.15)).mean()
+    if plant_fraction < MIN_PLANT_FRACTION:
+        warnings.append(_('Little or no leaf-coloured area was found. The result is unlikely to be meaningful '
+                          'unless the photo shows a plant leaf.'))
+    return None, warnings
+
+
+@app.route('/disease-predict/analyze', methods=['POST'])
+def disease_analyze():
+    """JSON endpoint used by the disease page to analyse images without reloading."""
+    file = request.files.get('file')
+    if file is None:
+        return jsonify(ok=False, error=_('No image was uploaded.')), 400
+    try:
+        image = load_upload(file.read())
+    except UploadError as e:
+        return jsonify(ok=False, error=str(e)), 400
+
+    blocking, warnings = image_quality(image)
+    if blocking:
+        return jsonify(ok=False, error=blocking), 422
 
     try:
-        crop_name = str(request.form['cropname']).strip().lower()
-        N = int(request.form['nitrogen'])
-        P = int(request.form['phosphorous'])
-        K = int(request.form['pottasium'])
+        probs = disease_probabilities(image)
+    except Exception as e:
+        print("DISEASE ANALYSIS FAILED:", repr(e))
+        return jsonify(ok=False, error=_('The model could not analyse this image. Please try another image.')), 500
 
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        fert_path = os.path.join(base_dir, 'Data', 'fertilizer.csv')
-        df = pd.read_csv(fert_path)
-        crop_mask = df['Crop'].str.lower() == crop_name
+    top = torch.topk(probs, 3)
+    candidates = []
+    for p, i in zip(top.values.tolist(), top.indices.tolist()):
+        crop, disease = split_label(disease_classes[i])
+        candidates.append({'label': disease_classes[i], 'crop': crop, 'disease': disease, 'confidence': p})
+    best = candidates[0]
+    print("ANALYZE:", best['label'], f"({best['confidence']:.1%})", warnings)
 
-        if not crop_mask.any():
-            return render_template('try_again.html', title=title)
+    # disease_dic entries start with their own "Crop: ... Disease: ..." lines; the page shows those separately
+    description = re.sub(r'^\s*<b>\s*Crop\s*</b>\s*:.*?Disease\s*:.*?<br/>', '',
+                         disease_dic[best['label']], count=1, flags=re.S)
+    return jsonify(
+        ok=True,
+        crop=best['crop'], disease=best['disease'], label=best['label'],
+        healthy=best['label'].endswith('___healthy'),
+        confidence=best['confidence'],
+        low_confidence=best['confidence'] < LOW_CONFIDENCE,
+        alternatives=candidates[1:],
+        description_html=description,
+        info=DISEASE_INFO.get(best['label']),
+        warnings=warnings,
+    )
 
-        nr = df.loc[crop_mask, 'N'].iloc[0]
-        pr = df.loc[crop_mask, 'P'].iloc[0]
-        kr = df.loc[crop_mask, 'K'].iloc[0]
+def supported_crops():
+    """Comma-separated crop names the active disease model can recognise."""
+    crops = sorted({split_label(c)[0].replace('Pepper, bell', 'bell pepper').replace(' (including sour)', '')
+                    .replace('Corn (maize)', 'corn').lower() for c in disease_classes})
+    return ', '.join(crops[:-1]) + ' and ' + crops[-1] if len(crops) > 1 else crops[0]
 
-        n = nr - N
-        p = pr - P
-        k = kr - K
-        temp = {abs(n): "N", abs(p): "P", abs(k): "K"}
-        max_value = temp[max(temp.keys())]
-        if max_value == "N":
-            key = 'NHigh' if n < 0 else "Nlow"
-        elif max_value == "P":
-            key = 'PHigh' if p < 0 else "Plow"
-        else:
-            key = 'KHigh' if k < 0 else "Klow"
+# ------------------------- DISEASE REFERENCE GALLERY -------------------------
+# Curated, labelled reference photos (tests/disease_samples). Labels come from image_index.csv,
+# never from the model; this gallery is separate from live inference.
 
-        response = Markup(str(fertilizer_dic[key]))
-        return render_template('fertilizer-result.html', recommendation=response, title=title)
-    except Exception:
-        return render_template('try_again.html', title=title)
+REFERENCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tests', 'disease_samples')
+REFERENCE_CLASSES = ['Apple___Apple_scab', 'Apple___Cedar_apple_rust', 'Grape___Black_rot',
+                     'Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy',
+                     'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___healthy']
+
+
+def load_reference_gallery():
+    """One indexed image per reference class (first listed in image_index.csv that exists on disk)."""
+    import csv
+    entries = {}
+    try:
+        with open(os.path.join(REFERENCE_DIR, 'image_index.csv'), encoding='utf-8') as f:
+            for row in csv.DictReader(f):
+                label = row['model_class']
+                if label in REFERENCE_CLASSES and label not in entries \
+                        and os.path.isfile(os.path.join(REFERENCE_DIR, row['filename'])):
+                    info = DISEASE_INFO.get(label, {})
+                    entries[label] = {
+                        'label': label, 'filename': row['filename'], 'crop': row['crop'], 'disease': row['disease'],
+                        'description': info.get('description', ''), 'symptoms': info.get('symptoms', []),
+                        'prevention': info.get('prevention', []), 'management': info.get('management', []),
+                        'source_url': row['source_url'], 'license': row['license'], 'author': row['author'],
+                    }
+    except Exception as e:
+        print(f"ERROR: reference gallery failed to load: {e!r}")
+    return [entries[c] for c in REFERENCE_CLASSES if c in entries]
+
+
+@app.route('/disease-reference')
+def disease_reference():
+    return render_template('disease_reference.html', title='Harvestify - Disease Reference Gallery',
+                           entries=load_reference_gallery())
+
+
+@app.route('/disease-reference/image/<path:filename>')
+def disease_reference_image(filename):
+    # Serve only files listed in the gallery index, never arbitrary paths
+    if filename not in {e['filename'] for e in load_reference_gallery()}:
+        abort(404)
+    return send_from_directory(REFERENCE_DIR, filename)
 
 # render disease prediction result page
 
 
 @app.route('/disease-predict', methods=['GET', 'POST'])
 def disease_prediction():
+    print("ROUTE HIT")
+
     title = 'Harvestify - Disease Detection'
 
     if request.method == 'POST':
+        print("POST RECEIVED")
+
         if 'file' not in request.files:
+            print("NO FILE FOUND")
             return redirect(request.url)
+
         file = request.files.get('file')
+
         if not file:
-            return render_template('disease.html', title=title)
+            print("EMPTY FILE")
+            return render_template('disease.html', title=title, supported_crops=supported_crops())
+
         try:
             img = file.read()
+            print("IMAGE READ SUCCESS")
 
-            prediction = predict_image(img)
+            prediction, confidence = predict_image(img)
+            print("PREDICTION:", prediction, f"({confidence:.1%})")
 
-            prediction = Markup(str(disease_dic[prediction]))
-            return render_template('disease-result.html', prediction=prediction, title=title)
-        except:
-            pass
-    return render_template('disease.html', title=title)
+            prediction = Markup(str(disease_dic[prediction])) + Markup(
+                '<br/><br/><b>{}</b>: {:.1f}%'
+            ).format(_('Confidence'), confidence * 100)
+
+            return render_template(
+                'disease-result.html',
+                prediction=prediction,
+                title=title
+            )
+
+        except Exception as e:
+            print("ERROR OCCURRED:", repr(e))
+            return render_template('try_again.html', title=title), 400
+
+    return render_template('disease.html', title=title, supported_crops=supported_crops())
 
 
 @app.route('/marketplace')

@@ -1,58 +1,294 @@
-{% extends 'layout.html' %} {% block body %}
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<style>
+  .leaf-drop {
+    border: 2px dashed #b9c7b5;
+    border-radius: .5rem;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    background: #fafcf9;
+    transition: background-color .15s, border-color .15s;
+  }
+  .leaf-drop.dragover { background: #eef6ec; border-color: #28a745; }
+  .leaf-preview { max-height: 260px; }
+  .disease-description { color: #212529; line-height: 1.7; }
+</style>
 
 <section class="py-5">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
+
+        <!-- Upload state -->
+        <div class="card border-0 shadow-sm" id="upload-card">
           <div class="card-body p-4 p-md-5">
+
             <h2 class="h4 mb-1">{{ _('Disease detection') }}</h2>
-            <p class="text-muted mb-4">
+            <p class="text-muted mb-3">
               {{ _('Upload a clear photo of a single leaf. Harvestify will try to detect the disease and recommend treatment.') }}
             </p>
+            <ul class="small text-muted pl-3 mb-4">
+              <li>{{ _('Fill most of the photo with one leaf, ideally against a plain background.') }}</li>
+              <li>{{ _('Use even, natural light; avoid strong shadows and blur.') }}</li>
+              <li>{{ _('Supported crops:') }} {{ supported_crops }}.</li>
+              <li><a href="{{ url_for('disease_reference') }}" id="reference-gallery-link">{{ _('Browse the disease reference gallery') }}</a> {{ _('to see example photos of common leaf diseases.') }}</li>
+            </ul>
 
-            <form method="POST" enctype="multipart/form-data">
-              <div class="form-group">
-                <label class="small font-weight-semibold" for="inputfile">{{ _('Leaf image') }}</label>
-                <input
-                  type="file"
-                  name="file"
-                  class="form-control-file"
-                  id="inputfile"
-                  accept="image/*"
-                  onchange="preview_image(event)"
-                  required
-                />
+            <!-- Works without JavaScript too: falls back to the classic form post -->
+            <form id="disease-form" action="{{ url_for('disease_prediction') }}" method="POST" enctype="multipart/form-data" novalidate>
+
+              <div class="leaf-drop" id="leaf-dropzone">
+                <input type="file" name="file" id="inputfile" class="d-none"
+                       accept="image/jpeg,image/png,image/webp,image/bmp" required />
+                <img id="output-image" class="img-fluid rounded shadow-sm leaf-preview d-none mb-3" alt="{{ _('Selected leaf image') }}" />
+                <div id="leaf-hint" class="text-muted small mb-2">{{ _('Drag and drop a leaf image here, or') }}</div>
+                <label for="inputfile" class="btn btn-outline-success mb-0" id="browse-button">
+                  {{ _('Browse image') }}
+                </label>
+                <div id="file-name" class="small text-muted mt-2"></div>
               </div>
 
-              <div class="text-center my-3">
-                <img id="output-image" class="img-fluid rounded shadow-sm d-none" style="max-height: 260px;" />
-              </div>
+              <div id="upload-error" class="alert alert-danger small mt-3 mb-0 d-none" role="alert"></div>
 
-              <div class="d-flex justify-content-end">
-                <button class="btn btn-success" type="submit">
-                  {{ _('Analyze image') }}
+              <div class="d-flex justify-content-end align-items-center mt-3">
+                <span id="loading" class="text-muted small mr-3 d-none" role="status">
+                  <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span>{{ _('Analysing image…') }}
+                </span>
+                <button class="btn btn-success" type="submit" id="analyze-button" disabled>
+                  {{ _('Analyse image') }}
                 </button>
               </div>
             </form>
+
           </div>
         </div>
+
+        <!-- Result state (filled from the model's JSON response) -->
+        <div class="card border-0 shadow-sm d-none" id="result-card" aria-live="polite">
+          <div class="card-body p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-start flex-wrap">
+              <h2 class="h4 mb-3">{{ _('Analysis result') }}</h2>
+              <button type="button" class="btn btn-success mb-3" id="another-button">
+                {{ _('Analyse Another Image') }}
+              </button>
+            </div>
+
+            <div class="row">
+              <div class="col-md-5 mb-3 text-center">
+                <img id="result-image" class="img-fluid rounded shadow-sm leaf-preview" alt="{{ _('Analysed leaf image') }}" />
+              </div>
+              <div class="col-md-7 mb-3">
+                <table class="table table-sm table-borderless mb-2">
+                  <tr><th class="pl-0">{{ _('Crop') }}</th><td id="result-crop"></td></tr>
+                  <tr><th class="pl-0">{{ _('Disease') }}</th><td id="result-disease"></td></tr>
+                  <tr><th class="pl-0">{{ _('Model confidence') }}</th><td id="result-confidence"></td></tr>
+                </table>
+                <div id="result-alternatives" class="small text-muted"></div>
+              </div>
+            </div>
+
+            <div id="result-low-confidence" class="alert alert-warning small d-none" role="alert"></div>
+            <div id="result-warnings" class="alert alert-warning small d-none" role="alert"></div>
+
+            <div id="result-description" class="disease-description"></div>
+
+            <p class="small text-muted mt-4 mb-0">
+              {{ _('This is an automated estimate, not a diagnosis. The model was trained on close-up photos of single leaves on plain backgrounds and is much less reliable on field photos showing whole plants, several leaves or busy backgrounds. Confirm with an agricultural expert before treating crops.') }}
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 </section>
 
 <script>
-  function preview_image(event) {
-    var reader = new FileReader();
-    reader.onload = function () {
-      var output = document.getElementById("output-image");
-      output.src = reader.result;
-      output.classList.remove("d-none");
-    };
-    reader.readAsDataURL(event.target.files[0]);
-  }
+  (function () {
+    var T = {{ {
+      'invalidType': _('Please choose a JPG, PNG, WEBP or BMP image.'),
+      'emptyFile': _('The selected file is empty.'),
+      'tooLarge': _('The image is larger than 10 MB. Please choose a smaller image.'),
+      'failed': _('The analysis failed. Please check your connection and try again.'),
+      'lowConfidence': _('Low confidence: the model is unsure about this image. The result may well be wrong — try a closer, well-lit photo of a single leaf.'),
+      'alternatives': _('Other possibilities:'),
+      'noDisease': _('No disease detected (healthy)'),
+      'selected': _('Selected:'),
+      'symptoms': _('Symptoms'),
+      'causes': _('Causes'),
+      'prevention': _('Prevention'),
+      'management': _('Management')
+    }|tojson }};
+    var ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
+    var MAX_BYTES = 10 * 1024 * 1024;
+
+    var form = document.getElementById('disease-form');
+    var input = document.getElementById('inputfile');
+    var dropZone = document.getElementById('leaf-dropzone');
+    var preview = document.getElementById('output-image');
+    var dropHint = document.getElementById('leaf-hint');
+    var fileName = document.getElementById('file-name');
+    var errorBox = document.getElementById('upload-error');
+    var analyzeButton = document.getElementById('analyze-button');
+    var browseButton = document.getElementById('browse-button');
+    var loading = document.getElementById('loading');
+    var uploadCard = document.getElementById('upload-card');
+    var resultCard = document.getElementById('result-card');
+
+    var currentFile = null;
+    var previewUrl = null;
+    var busy = false;
+
+    function show(el, visible) { el.classList.toggle('d-none', !visible); }
+
+    function showError(message) {
+      errorBox.textContent = message;
+      show(errorBox, true);
+    }
+
+    function validate(file) {
+      var typeOk = ALLOWED.indexOf(file.type) !== -1 || /\.(jpe?g|png|webp|bmp)$/i.test(file.name);
+      if (!typeOk) return T.invalidType;
+      if (file.size === 0) return T.emptyFile;
+      if (file.size > MAX_BYTES) return T.tooLarge;
+      return null;
+    }
+
+    function selectFile(file) {
+      if (!file || busy) return;            // cancelled picker: keep the current selection
+      var problem = validate(file);
+      if (problem) { showError(problem); return; }
+      show(errorBox, false);
+      currentFile = file;
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = URL.createObjectURL(file);
+      preview.src = previewUrl;
+      show(preview, true);
+      show(dropHint, false);
+      fileName.textContent = T.selected + ' ' + file.name;
+      analyzeButton.disabled = false;
+    }
+
+    function setBusy(state) {
+      busy = state;
+      analyzeButton.disabled = state || !currentFile;
+      browseButton.classList.toggle('disabled', state);
+      input.disabled = state;
+      show(loading, state);
+    }
+
+    function resetUpload() {
+      currentFile = null;
+      input.value = '';                     // lets the same file be chosen again
+      if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }
+      preview.removeAttribute('src');
+      show(preview, false);
+      show(dropHint, true);
+      fileName.textContent = '';
+      show(errorBox, false);
+      analyzeButton.disabled = true;
+    }
+
+    function clearResult() {
+      ['result-crop', 'result-disease', 'result-confidence', 'result-alternatives'].forEach(function (id) {
+        document.getElementById(id).textContent = '';
+      });
+      document.getElementById('result-description').innerHTML = '';
+      document.getElementById('result-image').removeAttribute('src');
+      show(document.getElementById('result-low-confidence'), false);
+      show(document.getElementById('result-warnings'), false);
+    }
+
+    function renderResult(data) {
+      document.getElementById('result-image').src = previewUrl;
+      document.getElementById('result-crop').textContent = data.crop;
+      document.getElementById('result-disease').textContent = data.healthy ? T.noDisease : data.disease;
+      document.getElementById('result-confidence').textContent = (data.confidence * 100).toFixed(1) + '%';
+      document.getElementById('result-alternatives').textContent = data.alternatives.length
+        ? T.alternatives + ' ' + data.alternatives.map(function (a) {
+            return a.crop + ' – ' + a.disease + ' (' + (a.confidence * 100).toFixed(1) + '%)';
+          }).join(', ')
+        : '';
+      var low = document.getElementById('result-low-confidence');
+      low.textContent = T.lowConfidence;
+      show(low, data.low_confidence);
+      var warn = document.getElementById('result-warnings');
+      warn.textContent = data.warnings.join(' ');
+      show(warn, data.warnings.length > 0);
+      var description = document.getElementById('result-description');
+      if (data.info) {
+        description.innerHTML = '';
+        var para = document.createElement('p');
+        para.textContent = data.info.description;
+        description.appendChild(para);
+        [['symptoms', T.symptoms], ['causes', T.causes], ['prevention', T.prevention], ['management', T.management]]
+          .forEach(function (section) {
+            var items = data.info[section[0]];
+            if (!items || !items.length) return;
+            var heading = document.createElement('h3');
+            heading.className = 'h6 mt-3';
+            heading.textContent = section[1];
+            var list = document.createElement('ul');
+            items.forEach(function (text) {
+              var li = document.createElement('li');
+              li.textContent = text;
+              list.appendChild(li);
+            });
+            description.appendChild(heading);
+            description.appendChild(list);
+          });
+      } else {
+        // Reference text from Harvestify's disease database (server-side HTML)
+        description.innerHTML = data.description_html;
+      }
+      show(uploadCard, false);
+      show(resultCard, true);
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    input.addEventListener('change', function () { selectFile(input.files[0]); });
+
+    ['dragenter', 'dragover'].forEach(function (evt) {
+      dropZone.addEventListener(evt, function (e) { e.preventDefault(); if (!busy) dropZone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+      dropZone.addEventListener(evt, function (e) { e.preventDefault(); dropZone.classList.remove('dragover'); });
+    });
+    dropZone.addEventListener('drop', function (e) {
+      if (e.dataTransfer && e.dataTransfer.files.length) selectFile(e.dataTransfer.files[0]);
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy || !currentFile) return;
+      show(errorBox, false);
+      setBusy(true);
+      var body = new FormData();
+      body.append('file', currentFile);
+      fetch('{{ url_for("disease_analyze") }}', { method: 'POST', body: body })
+        .then(function (response) {
+          return response.json().catch(function () { return { ok: false, error: T.failed }; });
+        })
+        .then(function (data) {
+          if (!data.ok) { showError(data.error || T.failed); return; }
+          clearResult();
+          renderResult(data);
+        })
+        .catch(function () { showError(T.failed); })
+        .then(function () { setBusy(false); });
+    });
+
+    document.getElementById('another-button').addEventListener('click', function () {
+      clearResult();
+      resetUpload();
+      show(resultCard, false);
+      show(uploadCard, true);
+      uploadCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      input.click();                        // open the picker straight away; cancelling just leaves the empty form
+    });
+  })();
 </script>
 
 {% endblock %}
-

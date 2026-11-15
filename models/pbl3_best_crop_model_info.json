@@ -1,0 +1,54 @@
+{
+  "model": "Random Forest",
+  "role": "best-performing ensemble model selected for Harvestify integration",
+  "selection_rule": "among ensembles, mean 5-fold CV macro-F1 on the training set; models within 0.001 of the top score are tied; ties -> shorter training time",
+  "tied_ensembles": [
+    "Random Forest",
+    "Stacking"
+  ],
+  "highest_cv_overall": "Gaussian Naive Bayes",
+  "preprocessing": "none required (scale-invariant model); pass raw feature values",
+  "feature_order": [
+    "N",
+    "P",
+    "K",
+    "temperature",
+    "humidity",
+    "ph",
+    "rainfall"
+  ],
+  "classes": [
+    "apple",
+    "banana",
+    "blackgram",
+    "chickpea",
+    "coconut",
+    "coffee",
+    "cotton",
+    "grapes",
+    "jute",
+    "kidneybeans",
+    "lentil",
+    "maize",
+    "mango",
+    "mothbeans",
+    "mungbean",
+    "muskmelon",
+    "orange",
+    "papaya",
+    "pigeonpeas",
+    "pomegranate",
+    "rice",
+    "watermelon"
+  ],
+  "test_metrics": {
+    "Accuracy": 0.9955,
+    "Precision": 0.9957,
+    "Recall": 0.9955,
+    "F1-score": 0.9955
+  },
+  "cv_macro_f1_mean": 0.9943,
+  "random_state": 42,
+  "test_size": 0.2,
+  "sklearn_version": "1.9.1"
+}

@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<style>
+  .reference-card img { width: 100%; height: 220px; object-fit: cover; border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
+  .reference-card .card-body { font-size: .9rem; }
+  .reference-card h4 { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #2e7d32; margin: .9rem 0 .3rem; }
+  .reference-card ul { padding-left: 1.1rem; margin-bottom: 0; }
+  .reference-credit { font-size: .72rem; }
+</style>
+
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+      <h2 class="h4 mb-2">{{ _('Disease reference gallery') }}</h2>
+      <a href="{{ url_for('disease_prediction') }}" class="btn btn-outline-success btn-sm mb-2">&larr; {{ _('Back to Disease Detection') }}</a>
+    </div>
+    <p class="text-muted mb-3">
+      {{ _('Reference photographs of the leaf conditions Harvestify covers, with their typical symptoms and recommended prevention and treatment.') }}
+    </p>
+    <div class="alert alert-info mb-4" role="note">
+      <b>{{ _('Curated Reference Example — Not a Live Model Prediction.') }}</b>
+      {{ _('Labels on this page come from the image sources, not from the disease-detection model. To analyse your own photo, use Disease Detection.') }}
+    </div>
+
+    <div class="row">
+      {% for e in entries %}
+      <div class="col-12 col-md-6 col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm h-100 reference-card" id="reference-{{ e.label|replace('_', '-')|replace('(', '')|replace(')', '')|lower }}">
+          <img src="{{ url_for('disease_reference_image', filename=e.filename) }}" alt="{{ e.crop }} – {{ e.disease }}" loading="lazy" />
+          <div class="card-body">
+            <span class="badge badge-light mb-2">{{ _('Curated Reference Example — Not a Live Model Prediction.') }}</span>
+            <h3 class="h6 mb-1"><span class="reference-crop">{{ e.crop }}</span> – <span class="reference-disease">{{ e.disease }}</span></h3>
+            <p class="text-muted mb-0">{{ e.description }}</p>
+
+            {% if e.symptoms %}
+            <h4>{{ _('Symptoms') }}</h4>
+            <ul>{% for s in e.symptoms %}<li>{{ s }}</li>{% endfor %}</ul>
+            {% endif %}
+
+            {% if e.prevention %}
+            <h4>{{ _('Prevention') }}</h4>
+            <ul>{% for s in e.prevention %}<li>{{ s }}</li>{% endfor %}</ul>
+            {% endif %}
+
+            {% if e.management %}
+            <h4>{{ _('Treatment and management') }}</h4>
+            <ul>{% for s in e.management %}<li>{{ s }}</li>{% endfor %}</ul>
+            {% endif %}
+
+            <p class="reference-credit text-muted mt-3 mb-0">
+              {{ _('Image:') }} <a href="{{ e.source_url }}" target="_blank" rel="noopener">{{ _('source') }}</a> · {{ e.license }}{% if e.author %} · {{ e.author|truncate(60) }}{% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="col-12"><p class="text-muted">{{ _('Reference images are currently unavailable.') }}</p></div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-2">
+      <a href="{{ url_for('disease_prediction') }}" class="btn btn-success">{{ _('Analyse your own leaf image') }}</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
