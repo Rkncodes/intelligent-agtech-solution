@@ -1,10 +1,10 @@
 {% extends 'layout.html' %} {% block body %}
 
-<section class="py-5">
+<section class="hv-section-sm">
   <div class="container">
     <div class="row">
       <div class="col-lg-7 mb-4 mb-lg-0">
-        <div class="card border-0 shadow-sm">
+        <div class="card hv-card">
           <div class="card-body p-4 p-md-5">
             <h2 class="h4 mb-1">{{ _('Checkout') }}</h2>
             <p class="text-muted mb-4">{{ _('Complete your delivery details and confirm your order.') }}</p>
@@ -16,51 +16,51 @@
             <form method="POST" action="{{ url_for('marketplace_checkout_submit') }}" id="checkout-form">
               <input type="hidden" name="cart_json" id="cart_json" />
 
-              <h6 class="text-uppercase text-muted small mb-3">{{ _('Contact') }}</h6>
+              <h6 class="hv-fieldset-title">{{ _('Contact') }}</h6>
               <div class="form-row">
                 <div class="form-group col-md-8">
-                  <label class="small font-weight-semibold" for="customer_name">{{ _('Full name') }}</label>
+                  <label for="customer_name">{{ _('Full name') }}</label>
                   <input class="form-control" id="customer_name" name="customer_name" required />
                 </div>
                 <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="phone">{{ _('Phone') }}</label>
+                  <label for="phone">{{ _('Phone') }}</label>
                   <input class="form-control" id="phone" name="phone" required />
                 </div>
               </div>
               <div class="form-group">
-                <label class="small font-weight-semibold" for="email">{{ _('Email (optional)') }}</label>
+                <label for="email">{{ _('Email (optional)') }}</label>
                 <input class="form-control" id="email" name="email" type="email" />
               </div>
 
               <hr class="my-4" />
 
-              <h6 class="text-uppercase text-muted small mb-3">{{ _('Delivery address') }}</h6>
+              <h6 class="hv-fieldset-title">{{ _('Delivery address') }}</h6>
               <div class="form-group">
-                <label class="small font-weight-semibold" for="address_line1">{{ _('Address line 1') }}</label>
+                <label for="address_line1">{{ _('Address line 1') }}</label>
                 <input class="form-control" id="address_line1" name="address_line1" required />
               </div>
               <div class="form-group">
-                <label class="small font-weight-semibold" for="address_line2">{{ _('Address line 2 (optional)') }}</label>
+                <label for="address_line2">{{ _('Address line 2 (optional)') }}</label>
                 <input class="form-control" id="address_line2" name="address_line2" />
               </div>
               <div class="form-row">
                 <div class="form-group col-md-5">
-                  <label class="small font-weight-semibold" for="city">{{ _('City') }}</label>
+                  <label for="city">{{ _('City') }}</label>
                   <input class="form-control" id="city" name="city" required />
                 </div>
                 <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="state">{{ _('State') }}</label>
+                  <label for="state">{{ _('State') }}</label>
                   <input class="form-control" id="state" name="state" required />
                 </div>
                 <div class="form-group col-md-3">
-                  <label class="small font-weight-semibold" for="pincode">{{ _('Pincode') }}</label>
+                  <label for="pincode">{{ _('Pincode') }}</label>
                   <input class="form-control" id="pincode" name="pincode" required />
                 </div>
               </div>
 
               <hr class="my-4" />
 
-              <h6 class="text-uppercase text-muted small mb-3">{{ _('Payment') }}</h6>
+              <h6 class="hv-fieldset-title">{{ _('Payment') }}</h6>
               <div class="form-group">
                 <div class="custom-control custom-radio">
                   <input type="radio" id="pay_cod" name="payment_method" class="custom-control-input" value="cod" checked>
@@ -73,7 +73,7 @@
               </div>
 
               <div class="form-group">
-                <label class="small font-weight-semibold" for="notes">{{ _('Order notes (optional)') }}</label>
+                <label for="notes">{{ _('Order notes (optional)') }}</label>
                 <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
               </div>
 
@@ -87,7 +87,7 @@
       </div>
 
       <div class="col-lg-5">
-        <div class="card border-0 shadow-sm">
+        <div class="card hv-card">
           <div class="card-body p-4 p-md-5">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h5 class="mb-0">{{ _('Order summary') }}</h5>

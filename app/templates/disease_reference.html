@@ -2,24 +2,16 @@
 
 {% block body %}
 
-<style>
-  .reference-card img { width: 100%; height: 220px; object-fit: cover; border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
-  .reference-card .card-body { font-size: .9rem; }
-  .reference-card h4 { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #2e7d32; margin: .9rem 0 .3rem; }
-  .reference-card ul { padding-left: 1.1rem; margin-bottom: 0; }
-  .reference-credit { font-size: .72rem; }
-  .reference-card .badge { white-space: normal; text-align: left; line-height: 1.4; }
-</style>
-
-<section class="py-5">
+<section class="hv-section-sm dz">
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
-      <h2 class="h4 mb-2">{{ _('Disease reference gallery') }}</h2>
-      <a href="{{ url_for('disease_prediction') }}" class="btn btn-outline-success btn-sm mb-2">&larr; {{ _('Back to Disease Detection') }}</a>
+    <div class="d-flex justify-content-between align-items-end flex-wrap">
+      <div class="hv-page-header mb-3">
+        <span class="hv-eyebrow">{{ _('Disease Detection') }}</span>
+        <h1>{{ _('Disease reference gallery') }}</h1>
+        <p>{{ _('Reference photographs of the leaf conditions Harvestify covers, with their typical symptoms and recommended prevention and treatment.') }}</p>
+      </div>
+      <a href="{{ url_for('disease_prediction') }}" class="btn btn-outline-success btn-sm mb-4">&larr; {{ _('Back to Disease Detection') }}</a>
     </div>
-    <p class="text-muted mb-3">
-      {{ _('Reference photographs of the leaf conditions Harvestify covers, with their typical symptoms and recommended prevention and treatment.') }}
-    </p>
     <div class="alert alert-info mb-4" role="note">
       <b>{{ _('Curated Reference Example — Not a Live Model Prediction.') }}</b>
       {{ _('Labels on this page come from the image sources, not from the disease-detection model. To analyse your own photo, use Disease Detection.') }}
@@ -28,12 +20,12 @@
     <div class="row">
       {% for e in entries %}
       <div class="col-12 col-md-6 col-lg-4 mb-4">
-        <div class="card border-0 shadow-sm h-100 reference-card" id="reference-{{ e.label|replace('_', '-')|replace('(', '')|replace(')', '')|lower }}">
+        <div class="hv-card h-100 reference-card" id="reference-{{ e.label|replace('_', '-')|replace('(', '')|replace(')', '')|lower }}">
           <img src="{{ url_for('disease_reference_image', filename=e.filename) }}" alt="{{ e.crop }} – {{ e.disease }}" loading="lazy" />
           <div class="card-body">
-            <span class="badge badge-light mb-2">{{ _('Curated Reference Example — Not a Live Model Prediction.') }}</span>
-            <h3 class="h6 mb-1"><span class="reference-crop">{{ e.crop }}</span> – <span class="reference-disease">{{ e.disease }}</span></h3>
-            <p class="text-muted mb-0">{{ e.description }}</p>
+            <span class="hv-badge hv-badge-info reference-badge mb-2">{{ _('Curated Reference Example — Not a Live Model Prediction.') }}</span>
+            <h3 class="reference-title"><span class="reference-crop">{{ e.crop }}</span> – <span class="reference-disease">{{ e.disease }}</span></h3>
+            <p class="reference-desc mb-0">{{ e.description }}</p>
 
             {% if e.symptoms %}
             <h4>{{ _('Symptoms') }}</h4>

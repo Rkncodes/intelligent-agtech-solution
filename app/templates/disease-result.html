@@ -1,14 +1,26 @@
-
 {% extends 'layout.html' %} {% block body %}
 
-
-<div class="container py-2 mx-auto my-50 h-10 " style="margin: 9rem;">
-  <div class="row">
-      <div class="col-sm py-2 py-md-3">
-          <div class="card card-body" style="justify-content: center; background-color:blanchedalmond">
-            <p class="text-center" style="color: black; font-size: 22px;">{{ prediction }}</p>
+<section class="hv-section-sm dz">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-10">
+        <div class="hv-page-header">
+          <span class="hv-eyebrow">{{ _('Disease Detection') }}</span>
+          <h1>{{ _('Analysis result') }}</h1>
+        </div>
+        <div class="hv-card mb-4">
+          <div class="hv-card-body">
+            <div class="disease-description">{{ prediction }}</div>
+            <p class="dz-disclaimer mt-4 mb-0">
+              {{ _('This is an automated estimate, not a diagnosis. Confirm with an agricultural expert before treating crops.') }}
+            </p>
           </div>
+        </div>
+        <div class="hv-form-actions">
+          <a href="{{ url_for('disease_prediction') }}" class="btn btn-success px-4">{{ _('Analyse Another Image') }}</a>
+        </div>
       </div>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

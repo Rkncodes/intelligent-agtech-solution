@@ -11,90 +11,6 @@
 	<meta name="keywords" content="Agro Harvest Responsive web template, Bootstrap Web Templates, Flat Web Templates, Android Compatible web template, 
 Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyEricsson, Motorola web design" />
 
-	<style>
-		html {
-			font-size: 1rem;
-		}
-
-		@media (min-width: 576px) {
-			html {
-				font-size: 1.25rem;
-			}
-		}
-
-		@media (min-width: 768px) {
-			html {
-				font-size: 1.5rem;
-			}
-		}
-
-		@media (min-width: 992px) {
-			html {
-				font-size: 1.75rem;
-			}
-		}
-
-		@media (min-width: 1200px) {
-			html {
-				font-size: 2rem;
-			}
-
-			html {
-				font-size: 1rem;
-			}
-
-			h1 {
-				font-size: 1.2rem;
-			}
-
-			h2 {
-				font-size: 1.1rem;
-			}
-
-			@media (min-width: 768px) {
-				html {
-					font-size: 1.1rem;
-				}
-
-				h1 {
-					font-size: 1.3rem;
-				}
-
-				h2 {
-					font-size: 1.2rem;
-				}
-			}
-
-			@media (min-width: 991px) {
-				html {
-					font-size: 1.2rem;
-				}
-
-				h1 {
-					font-size: 1.5rem;
-				}
-
-				h2 {
-					font-size: 1.4rem;
-				}
-			}
-
-			@media (min-width: 1200px) {
-				html {
-					font-size: 1.2rem;
-				}
-
-				h1 {
-					font-size: 1.7rem;
-				}
-
-				h2 {
-					font-size: 1.6rem;
-				}
-			}
-
-		}
-	</style>
 	<script>
 		addEventListener("load", function () {
 			setTimeout(hideURLbar, 0);
@@ -121,7 +37,6 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
 		integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
 		crossorigin="anonymous"></script>
-	</body>
 	<!-- css files -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
 		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -130,6 +45,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 	<link href="{{ url_for('static', filename='css/style.css') }}" rel='stylesheet' type='text/css' />
 	<!-- custom css -->
 	<link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet"><!-- fontawesome css -->
+	<link href="{{ url_for('static', filename='css/harvestify-ui.css') }}" rel="stylesheet"><!-- Harvestify design system -->
 	<!-- //css files -->
 	<!-- <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png?') }}"> -->
 
@@ -168,19 +84,19 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 			<div class="collapse navbar-collapse" id="navbarResponsive">
 				<ul class="navbar-nav ml-auto align-items-lg-center">
 					<li class="nav-item{% if request.endpoint == 'home' %} active{% endif %}">
-						<a class="nav-link" href="{{ url_for('home') }}">{{ _('Home') }}</a>
+						<a class="nav-link" {% if request.endpoint == 'home' %}aria-current="page"{% endif %} href="{{ url_for('home') }}">{{ _('Home') }}</a>
 					</li>
 					<li class="nav-item{% if request.endpoint in ['crop_recommend', 'crop_prediction'] %} active{% endif %}">
-						<a class="nav-link" href="{{ url_for('crop_recommend') }}">{{ _('Crop') }}</a>
+						<a class="nav-link" {% if request.endpoint in ['crop_recommend', 'crop_prediction'] %}aria-current="page"{% endif %} href="{{ url_for('crop_recommend') }}">{{ _('Crop') }}</a>
 					</li>
 					<li class="nav-item{% if request.endpoint in ['fertilizer_recommendation', 'fert_recommend'] %} active{% endif %}">
-						<a class="nav-link" href="{{ url_for('fertilizer_recommendation') }}">{{ _('Fertilizer') }}</a>
+						<a class="nav-link" {% if request.endpoint in ['fertilizer_recommendation', 'fert_recommend'] %}aria-current="page"{% endif %} href="{{ url_for('fertilizer_recommendation') }}">{{ _('Fertilizer') }}</a>
 					</li>
-					<li class="nav-item{% if request.endpoint == 'disease_prediction' %} active{% endif %}">
-						<a class="nav-link" href="{{ url_for('disease_prediction') }}">{{ _('Disease') }}</a>
+					<li class="nav-item{% if request.endpoint in ['disease_prediction', 'disease_reference'] %} active{% endif %}">
+						<a class="nav-link" {% if request.endpoint in ['disease_prediction', 'disease_reference'] %}aria-current="page"{% endif %} href="{{ url_for('disease_prediction') }}">{{ _('Disease') }}</a>
 					</li>
-					<li class="nav-item{% if request.endpoint == 'marketplace' %} active{% endif %}">
-						<a class="nav-link" href="{{ url_for('marketplace') }}">{{ _('Marketplace') }}</a>
+					<li class="nav-item{% if request.endpoint in ['marketplace', 'marketplace_checkout', 'marketplace_checkout_submit', 'marketplace_order', 'marketplace_orders'] %} active{% endif %}">
+						<a class="nav-link" {% if request.endpoint in ['marketplace', 'marketplace_checkout', 'marketplace_checkout_submit', 'marketplace_order', 'marketplace_orders'] %}aria-current="page"{% endif %} href="{{ url_for('marketplace') }}">{{ _('Marketplace') }}</a>
 					</li>
 					<li class="nav-item ml-lg-3 d-flex align-items-center">
 						<div id="google_translate_element" class="hf-translate"></div>
@@ -195,34 +111,23 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 	</main>
 
 	<!-- footer -->
-	<footer class="text-center py-5">
-		<div class="container py-md-3">
-			<!-- logo -->
-			<h2 class="logo2 text-center">
-				<a href="{{ url_for('home') }}">
-					Harvestify
-				</a>
-			</h2>
-			<!-- //logo -->
-			<!-- address -->
-			<div class="contact-left-footer mt-4">
-
-
-
-
-
-				<!-- <a href="community.html">Community</a> -->
-				</p>
+	<footer class="hv-footer">
+		<div class="container">
+			<div class="row align-items-start">
+				<div class="col-lg-4 mb-4 mb-lg-0">
+					<a class="hv-footer-brand notranslate" translate="no" href="{{ url_for('home') }}">Harvestify</a>
+					<p>{{ _('Smart farming insights for better decisions.') }}</p>
+				</div>
 			</div>
-			<div class="w3l-copy text-center">
-				<p class="text-da">{{ _('Smart farming insights for better decisions.') }}</p>
+			<div class="hv-footer-bottom">
+				{{ _('Recommendations are guidance only. Confirm important decisions with a local agricultural expert.') }}
 			</div>
 		</div>
 	</footer>
 	<!-- //footer -->
 
 	<!-- move top icon -->
-	<a href="#home" class="move-top text-center"></a>
+	<a href="#" class="move-top text-center" aria-label="{{ _('Back to top') }}"></a>
 	<!-- //move top icon -->
 
 	<!-- Keep the fixed navbar clear of the Google Translate toolbar and the content clear of the navbar.

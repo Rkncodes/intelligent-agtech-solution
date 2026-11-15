@@ -1,6 +1,6 @@
 {% extends 'layout.html' %} {% block body %}
 
-<section class="py-5">
+<section class="hv-section-sm">
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
@@ -10,7 +10,7 @@
       <a class="btn btn-outline-success btn-sm" href="{{ url_for('marketplace') }}">{{ _('Back to marketplace') }}</a>
     </div>
 
-    <div class="card border-0 shadow-sm">
+    <div class="card hv-card">
       <div class="card-body p-0">
         {% if not orders %}
           <div class="p-4 text-muted">{{ _('No orders yet. Go to marketplace and checkout.') }}</div>

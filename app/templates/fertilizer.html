@@ -1,73 +1,79 @@
 {% extends 'layout.html' %} {% block body %}
 
-<section class="py-5">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body p-4 p-md-5">
-            <h2 class="h4 mb-1">{{ _('Fertilizer advisor') }}</h2>
-            <p class="text-muted mb-4">
-              {{ _('Compare your current NPK levels with the ideal range for your crop and get targeted advice.') }}
-            </p>
+{% set crops = [
+  ('rice', 'Rice'), ('maize', 'Maize'), ('chickpea', 'Chickpea'), ('kidneybeans', 'Kidney beans'),
+  ('pigeonpeas', 'Pigeon peas'), ('mothbeans', 'Moth beans'), ('mungbean', 'Mung bean'), ('blackgram', 'Black gram'),
+  ('lentil', 'Lentil'), ('pomegranate', 'Pomegranate'), ('banana', 'Banana'), ('mango', 'Mango'),
+  ('grapes', 'Grapes'), ('watermelon', 'Watermelon'), ('muskmelon', 'Muskmelon'), ('apple', 'Apple'),
+  ('orange', 'Orange'), ('papaya', 'Papaya'), ('coconut', 'Coconut'), ('cotton', 'Cotton'),
+  ('jute', 'Jute'), ('coffee', 'Coffee')
+] %}
 
+<section class="hv-section-sm">
+  <div class="container">
+    <div class="hv-page-header">
+      <span class="hv-eyebrow">{{ _('Fertilizer Advisor') }}</span>
+      <h1>{{ _('Check your soil nutrients') }}</h1>
+      <p>{{ _('Compare your current NPK levels with the typical range for your crop and get targeted advice.') }}</p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <div class="hv-card">
+          <div class="hv-card-body">
             {% if errors %}
-            <div class="alert alert-danger small" role="alert">
-              <ul class="mb-0 pl-3">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            <div class="alert alert-danger" role="alert">
+              <strong class="d-block mb-1">{{ _('Please correct the following:') }}</strong>
+              <ul class="hv-error-list mb-0">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
             </div>
             {% endif %}
 
             <form method="POST" action="{{ url_for('fert_recommend') }}">
-              <div class="form-row">
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="Nitrogen">{{ _('Nitrogen (N)') }}</label>
-                  <input type="number" class="form-control" id="Nitrogen" name="nitrogen" placeholder="e.g. 80" min="0" max="500" step="any" value="{{ form.nitrogen if form }}" required />
-                </div>
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="Phosphorous">{{ _('Phosphorus (P)') }}</label>
-                  <input type="number" class="form-control" id="Phosphorous" name="phosphorous" placeholder="e.g. 40" min="0" max="500" step="any" value="{{ form.phosphorous if form }}" required />
-                </div>
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="Pottasium">{{ _('Potassium (K)') }}</label>
-                  <input type="number" class="form-control" id="Pottasium" name="pottasium" placeholder="e.g. 40" min="0" max="500" step="any" value="{{ form.pottasium if form }}" required />
-                </div>
-              </div>
-
+              <h2 class="hv-fieldset-title">{{ _('Crop') }}</h2>
               <div class="form-group">
-                <label class="small font-weight-semibold" for="crop">{{ _('Crop you want to grow') }}</label>
+                <label for="crop">{{ _('Crop you want to grow') }}</label>
                 <select name="cropname" id="crop" class="form-control" required>
                   <option value="">{{ _('Select crop') }}</option>
-                  <option{% if form and form.cropname == "rice" %} selected{% endif %}>rice</option>
-                  <option{% if form and form.cropname == "maize" %} selected{% endif %}>maize</option>
-                  <option{% if form and form.cropname == "chickpea" %} selected{% endif %}>chickpea</option>
-                  <option{% if form and form.cropname == "kidneybeans" %} selected{% endif %}>kidneybeans</option>
-                  <option{% if form and form.cropname == "pigeonpeas" %} selected{% endif %}>pigeonpeas</option>
-                  <option{% if form and form.cropname == "mothbeans" %} selected{% endif %}>mothbeans</option>
-                  <option{% if form and form.cropname == "mungbean" %} selected{% endif %}>mungbean</option>
-                  <option{% if form and form.cropname == "blackgram" %} selected{% endif %}>blackgram</option>
-                  <option{% if form and form.cropname == "lentil" %} selected{% endif %}>lentil</option>
-                  <option{% if form and form.cropname == "pomegranate" %} selected{% endif %}>pomegranate</option>
-                  <option{% if form and form.cropname == "banana" %} selected{% endif %}>banana</option>
-                  <option{% if form and form.cropname == "mango" %} selected{% endif %}>mango</option>
-                  <option{% if form and form.cropname == "grapes" %} selected{% endif %}>grapes</option>
-                  <option{% if form and form.cropname == "watermelon" %} selected{% endif %}>watermelon</option>
-                  <option{% if form and form.cropname == "muskmelon" %} selected{% endif %}>muskmelon</option>
-                  <option{% if form and form.cropname == "apple" %} selected{% endif %}>apple</option>
-                  <option{% if form and form.cropname == "orange" %} selected{% endif %}>orange</option>
-                  <option{% if form and form.cropname == "papaya" %} selected{% endif %}>papaya</option>
-                  <option{% if form and form.cropname == "coconut" %} selected{% endif %}>coconut</option>
-                  <option{% if form and form.cropname == "cotton" %} selected{% endif %}>cotton</option>
-                  <option{% if form and form.cropname == "jute" %} selected{% endif %}>jute</option>
-                  <option{% if form and form.cropname == "coffee" %} selected{% endif %}>coffee</option>
+                  {% for value, label in crops %}
+                  <option value="{{ value }}"{% if form and form.cropname == value %} selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
                 </select>
               </div>
 
-              <div class="d-flex justify-content-end mt-3">
-                <button type="submit" class="btn btn-success">
-                  {{ _('Get fertilizer advice') }}
-                </button>
+              <h2 class="hv-fieldset-title mt-4">{{ _('Soil test values') }}</h2>
+              <div class="form-row">
+                <div class="form-group col-sm-4">
+                  <label for="Nitrogen">{{ _('Nitrogen (N)') }}</label>
+                  <input type="number" class="form-control" id="Nitrogen" name="nitrogen" placeholder="e.g. 80" min="0" max="500" step="any" value="{{ form.nitrogen if form }}" required />
+                </div>
+                <div class="form-group col-sm-4">
+                  <label for="Phosphorous">{{ _('Phosphorus (P)') }}</label>
+                  <input type="number" class="form-control" id="Phosphorous" name="phosphorous" placeholder="e.g. 40" min="0" max="500" step="any" value="{{ form.phosphorous if form }}" required />
+                </div>
+                <div class="form-group col-sm-4">
+                  <label for="Pottasium">{{ _('Potassium (K)') }}</label>
+                  <input type="number" class="form-control" id="Pottasium" name="pottasium" placeholder="e.g. 40" min="0" max="500" step="any" value="{{ form.pottasium if form }}" required />
+                </div>
+              </div>
+              <small class="hv-hint mt-n2 mb-3">{{ _('Enter the N, P and K values from your soil test report (0–500).') }}</small>
+
+              <div class="hv-form-actions">
+                <button type="submit" class="btn btn-success btn-lg">{{ _('Get fertilizer advice') }}</button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mb-4">
+        <div class="hv-card">
+          <div class="hv-card-body">
+            <h2 class="hv-card-title">{{ _('How it works') }}</h2>
+            <ol class="hv-steps">
+              <li>{{ _('Choose your crop and enter your soil N, P and K values.') }}</li>
+              <li>{{ _('Each value is compared with the range recorded for that crop and marked Low, Adequate or High.') }}</li>
+              <li>{{ _('For any nutrient outside the range, you get an explanation and suggested actions.') }}</li>
+            </ol>
           </div>
         </div>
       </div>
@@ -76,4 +82,3 @@
 </section>
 
 {% endblock %}
-

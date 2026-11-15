@@ -1,57 +1,81 @@
 {% extends 'layout.html' %} {% block body %}
 
-<section class="py-5">
+<section class="hv-section-sm">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body p-4 p-md-5">
-            <h2 class="h4 mb-1">{{ _('Crop recommendation') }}</h2>
-            <p class="text-muted mb-4">
-              {{ _('Enter your soil nutrients, pH and rainfall. Harvestify will suggest a crop that fits your field.') }}
-            </p>
+    <div class="hv-page-header">
+      <span class="hv-eyebrow">{{ _('Crop Recommendation') }}</span>
+      <h1>{{ _('Find the right crop for your field') }}</h1>
+      <p>{{ _('Enter your soil nutrients, pH and rainfall, and choose your location. Harvestify will suggest the crop that best fits these conditions.') }}</p>
+    </div>
 
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <div class="hv-card">
+          <div class="hv-card-body">
             <form method="POST" action="{{ url_for('crop_prediction') }}">
+              <h2 class="hv-fieldset-title">{{ _('Soil nutrients') }}</h2>
               <div class="form-row">
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="Nitrogen">{{ _('Nitrogen (N)') }}</label>
+                <div class="form-group col-sm-4">
+                  <label for="Nitrogen">{{ _('Nitrogen (N)') }}</label>
                   <input type="number" class="form-control" id="Nitrogen" name="nitrogen" placeholder="e.g. 80" required />
+                  <small class="hv-hint">{{ _('Typical: 0–140') }}</small>
                 </div>
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="Phosphorous">{{ _('Phosphorus (P)') }}</label>
+                <div class="form-group col-sm-4">
+                  <label for="Phosphorous">{{ _('Phosphorus (P)') }}</label>
                   <input type="number" class="form-control" id="Phosphorous" name="phosphorous" placeholder="e.g. 40" required />
+                  <small class="hv-hint">{{ _('Typical: 5–145') }}</small>
                 </div>
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="Pottasium">{{ _('Potassium (K)') }}</label>
+                <div class="form-group col-sm-4">
+                  <label for="Pottasium">{{ _('Potassium (K)') }}</label>
                   <input type="number" class="form-control" id="Pottasium" name="pottasium" placeholder="e.g. 40" required />
+                  <small class="hv-hint">{{ _('Typical: 5–205') }}</small>
                 </div>
               </div>
 
+              <h2 class="hv-fieldset-title mt-2">{{ _('Soil and climate') }}</h2>
               <div class="form-row">
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="ph">{{ _('Soil pH') }}</label>
+                <div class="form-group col-sm-6">
+                  <label for="ph">{{ _('Soil pH') }}</label>
                   <input type="number" step="0.01" class="form-control" id="ph" name="ph" placeholder="e.g. 6.5" required />
+                  <small class="hv-hint">{{ _('pH scale; typical 3.5–9.9') }}</small>
                 </div>
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="Rainfall">{{ _('Rainfall (mm)') }}</label>
-                  <input type="number" step="0.01" class="form-control" id="Rainfall" name="rainfall" placeholder="Annual rainfall" required />
+                <div class="form-group col-sm-6">
+                  <label for="Rainfall">{{ _('Rainfall') }} <span class="hv-unit">(mm)</span></label>
+                  <input type="number" step="0.01" class="form-control" id="Rainfall" name="rainfall" placeholder="e.g. 200" required />
+                  <small class="hv-hint">{{ _('Typical: 20–300 mm') }}</small>
                 </div>
-                <div class="form-group col-md-4">
-                  <label class="small font-weight-semibold" for="sts">{{ _('Location') }}</label>
-                  <select id="sts" name="stt" class="form-control mb-2" required onchange="print_city('state', this.selectedIndex);"></select>
+              </div>
+
+              <h2 class="hv-fieldset-title mt-2">{{ _('Location') }}</h2>
+              <div class="form-row">
+                <div class="form-group col-sm-6">
+                  <label for="sts">{{ _('State') }}</label>
+                  <select id="sts" name="stt" class="form-control" required onchange="print_city('state', this.selectedIndex);"></select>
+                </div>
+                <div class="form-group col-sm-6">
+                  <label for="state">{{ _('City') }}</label>
                   <select id="state" name="city" class="form-control" required></select>
                 </div>
               </div>
+              <small class="hv-hint mt-n2 mb-3">{{ _('Your location is used to look up current temperature and humidity.') }}</small>
 
-              <div class="d-flex justify-content-between align-items-center mt-3">
-                <p class="small text-muted mb-0">
-                  {{ _('Tip: reuse these values when exploring products in the marketplace.') }}
-                </p>
-                <button type="submit" class="btn btn-success">
-                  {{ _('Get crop suggestion') }}
-                </button>
+              <div class="hv-form-actions">
+                <button type="submit" class="btn btn-success btn-lg">{{ _('Get crop suggestion') }}</button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mb-4">
+        <div class="hv-card">
+          <div class="hv-card-body">
+            <h2 class="hv-card-title">{{ _('How it works') }}</h2>
+            <ol class="hv-steps">
+              <li>{{ _('Enter the N, P and K values and pH from your soil test, and your rainfall.') }}</li>
+              <li>{{ _('Choose your state and city so current temperature and humidity can be included.') }}</li>
+              <li>{{ _('Get a recommended crop and see how your values compare with where that crop is usually grown.') }}</li>
+            </ol>
           </div>
         </div>
       </div>
@@ -68,4 +92,3 @@
 </script>
 
 {% endblock %}
-

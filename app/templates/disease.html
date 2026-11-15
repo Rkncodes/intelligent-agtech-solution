@@ -2,104 +2,115 @@
 
 {% block body %}
 
-<style>
-  .leaf-drop {
-    border: 2px dashed #b9c7b5;
-    border-radius: .5rem;
-    padding: 1.5rem 1rem;
-    text-align: center;
-    background: #fafcf9;
-    transition: background-color .15s, border-color .15s;
-  }
-  .leaf-drop.dragover { background: #eef6ec; border-color: #28a745; }
-  .leaf-preview { max-height: 260px; }
-  .disease-description { color: #212529; line-height: 1.7; }
-</style>
-
-<section class="py-5">
+<section class="hv-section-sm dz">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-7">
+    <div class="hv-page-header">
+      <span class="hv-eyebrow">{{ _('Disease Detection') }}</span>
+      <h1>{{ _('Check a leaf for disease') }}</h1>
+      <p>{{ _('Upload a clear photo of a single leaf. Harvestify will try to detect the disease and recommend treatment.') }}</p>
+    </div>
 
-        <!-- Upload state -->
-        <div class="card border-0 shadow-sm" id="upload-card">
-          <div class="card-body p-4 p-md-5">
-
-            <h2 class="h4 mb-1">{{ _('Disease detection') }}</h2>
-            <p class="text-muted mb-3">
-              {{ _('Upload a clear photo of a single leaf. Harvestify will try to detect the disease and recommend treatment.') }}
-            </p>
-            <ul class="small text-muted pl-3 mb-4">
-              <li>{{ _('Fill most of the photo with one leaf, ideally against a plain background.') }}</li>
-              <li>{{ _('Use even, natural light; avoid strong shadows and blur.') }}</li>
-              <li>{{ _('Supported crops:') }} {{ supported_crops }}.</li>
-              <li><a href="{{ url_for('disease_reference') }}" id="reference-gallery-link">{{ _('Browse the disease reference gallery') }}</a> {{ _('to see example photos of common leaf diseases.') }}</li>
-            </ul>
-
+    <!-- Upload state -->
+    <div class="row" id="upload-card">
+      <div class="col-lg-7 mb-4">
+        <div class="hv-card">
+          <div class="hv-card-body">
             <!-- Works without JavaScript too: falls back to the classic form post -->
             <form id="disease-form" action="{{ url_for('disease_prediction') }}" method="POST" enctype="multipart/form-data" novalidate>
 
               <div class="leaf-drop" id="leaf-dropzone">
                 <input type="file" name="file" id="inputfile" class="d-none"
                        accept="image/jpeg,image/png,image/webp,image/bmp" required />
-                <img id="output-image" class="img-fluid rounded shadow-sm leaf-preview d-none mb-3" alt="{{ _('Selected leaf image') }}" />
-                <div id="leaf-hint" class="text-muted small mb-2">{{ _('Drag and drop a leaf image here, or') }}</div>
+                <img id="output-image" class="img-fluid leaf-preview d-none mb-3" alt="{{ _('Selected leaf image') }}" />
+                <div id="leaf-hint">
+                  <svg class="leaf-drop-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M17 8l-5-5-5 5"></path><path d="M12 3v12"></path></svg>
+                  <div class="leaf-drop-text">{{ _('Drag and drop a leaf image here, or') }}</div>
+                </div>
                 <label for="inputfile" class="btn btn-outline-success mb-0" id="browse-button">
                   {{ _('Browse image') }}
                 </label>
-                <div id="file-name" class="small text-muted mt-2"></div>
+                <div id="file-name" class="hv-hint mt-2"></div>
+                <div class="hv-hint mt-1">{{ _('JPG, PNG, WEBP or BMP, up to 10 MB.') }}</div>
               </div>
 
-              <div id="upload-error" class="alert alert-danger small mt-3 mb-0 d-none" role="alert"></div>
+              <div id="upload-error" class="alert alert-danger mt-3 mb-0 d-none" role="alert"></div>
 
-              <div class="d-flex justify-content-end align-items-center mt-3">
-                <span id="loading" class="text-muted small mr-3 d-none" role="status">
+              <div class="hv-form-actions align-items-center mt-3">
+                <span id="loading" class="hv-muted small mr-3 d-none" role="status">
                   <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span>{{ _('Analysing image…') }}
                 </span>
-                <button class="btn btn-success" type="submit" id="analyze-button" disabled>
+                <button class="btn btn-success btn-lg" type="submit" id="analyze-button" disabled>
                   {{ _('Analyse image') }}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
 
+      <div class="col-lg-5 mb-4">
+        <div class="hv-card">
+          <div class="hv-card-body">
+            <h2 class="hv-card-title">{{ _('For the best result') }}</h2>
+            <ul class="dz-tips">
+              <li>{{ _('Fill most of the photo with one leaf, ideally against a plain background.') }}</li>
+              <li>{{ _('Use even, natural light; avoid strong shadows and blur.') }}</li>
+              <li>{{ _('Supported crops:') }} {{ supported_crops }}.</li>
+            </ul>
+            <div class="dz-ref">
+              <a href="{{ url_for('disease_reference') }}" id="reference-gallery-link">{{ _('Browse the disease reference gallery') }}</a>
+              {{ _('to see example photos of common leaf diseases.') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result state (filled from the model's JSON response) -->
+    <div class="hv-card mb-4 d-none" id="result-card" aria-live="polite">
+      <div class="hv-card-body">
+        <div class="d-flex justify-content-between align-items-start flex-wrap">
+          <h2 class="h4 mb-3">{{ _('Analysis result') }}</h2>
+          <button type="button" class="btn btn-success mb-3" id="another-button">
+            {{ _('Analyse Another Image') }}
+          </button>
+        </div>
+
+        <div class="row">
+          <div class="col-md-5 mb-3">
+            <img id="result-image" class="img-fluid leaf-preview dz-result-img" alt="{{ _('Analysed leaf image') }}" />
+          </div>
+          <div class="col-md-7 mb-3">
+            <div class="dz-facts">
+              <div class="dz-fact">
+                <div class="dz-fact-label">{{ _('Crop') }}</div>
+                <div class="dz-fact-value" id="result-crop"></div>
+              </div>
+              <div class="dz-fact">
+                <div class="dz-fact-label">{{ _('Disease') }}</div>
+                <div class="dz-fact-value" id="result-disease"></div>
+              </div>
+              <div class="dz-fact">
+                <div class="dz-fact-label">{{ _('Model confidence') }}</div>
+                <div class="d-flex align-items-center">
+                  <div class="dz-meter" aria-hidden="true"><span id="result-confidence-bar"></span></div>
+                  <div class="dz-fact-value ml-3" id="result-confidence"></div>
+                </div>
+                <small class="hv-hint">{{ _('How sure the model is about this photo. It is not a measure of how accurate the diagnosis is in the field.') }}</small>
+              </div>
+            </div>
+            <div id="result-alternatives" class="hv-hint mt-3"></div>
           </div>
         </div>
 
-        <!-- Result state (filled from the model's JSON response) -->
-        <div class="card border-0 shadow-sm d-none" id="result-card" aria-live="polite">
-          <div class="card-body p-4 p-md-5">
-            <div class="d-flex justify-content-between align-items-start flex-wrap">
-              <h2 class="h4 mb-3">{{ _('Analysis result') }}</h2>
-              <button type="button" class="btn btn-success mb-3" id="another-button">
-                {{ _('Analyse Another Image') }}
-              </button>
-            </div>
+        <div id="result-low-confidence" class="alert alert-warning d-none" role="alert"></div>
+        <div id="result-warnings" class="alert alert-warning d-none" role="alert"></div>
 
-            <div class="row">
-              <div class="col-md-5 mb-3 text-center">
-                <img id="result-image" class="img-fluid rounded shadow-sm leaf-preview" alt="{{ _('Analysed leaf image') }}" />
-              </div>
-              <div class="col-md-7 mb-3">
-                <table class="table table-sm table-borderless mb-2">
-                  <tr><th class="pl-0">{{ _('Crop') }}</th><td id="result-crop"></td></tr>
-                  <tr><th class="pl-0">{{ _('Disease') }}</th><td id="result-disease"></td></tr>
-                  <tr><th class="pl-0">{{ _('Model confidence') }}</th><td id="result-confidence"></td></tr>
-                </table>
-                <div id="result-alternatives" class="small text-muted"></div>
-              </div>
-            </div>
+        <div id="result-description" class="disease-description"></div>
 
-            <div id="result-low-confidence" class="alert alert-warning small d-none" role="alert"></div>
-            <div id="result-warnings" class="alert alert-warning small d-none" role="alert"></div>
-
-            <div id="result-description" class="disease-description"></div>
-
-            <p class="small text-muted mt-4 mb-0">
-              {{ _('This is an automated estimate, not a diagnosis. The model was trained on close-up photos of single leaves on plain backgrounds and is much less reliable on field photos showing whole plants, several leaves or busy backgrounds. Confirm with an agricultural expert before treating crops.') }}
-            </p>
-          </div>
-        </div>
-
+        <p class="dz-disclaimer mt-4 mb-0">
+          {{ _('This is an automated estimate, not a diagnosis. The model was trained on close-up photos of single leaves on plain backgrounds and is much less reliable on field photos showing whole plants, several leaves or busy backgrounds. Confirm with an agricultural expert before treating crops.') }}
+        </p>
       </div>
     </div>
   </div>
@@ -200,6 +211,7 @@
       ['result-crop', 'result-disease', 'result-confidence', 'result-alternatives'].forEach(function (id) {
         document.getElementById(id).textContent = '';
       });
+      document.getElementById('result-confidence-bar').style.width = '0';
       document.getElementById('result-description').innerHTML = '';
       document.getElementById('result-image').removeAttribute('src');
       show(document.getElementById('result-low-confidence'), false);
@@ -211,6 +223,11 @@
       document.getElementById('result-crop').textContent = data.crop;
       document.getElementById('result-disease').textContent = data.healthy ? T.noDisease : data.disease;
       document.getElementById('result-confidence').textContent = (data.confidence * 100).toFixed(1) + '%';
+      var bar = document.getElementById('result-confidence-bar');
+      bar.style.width = Math.max(0, Math.min(100, data.confidence * 100)).toFixed(1) + '%';
+      bar.classList.toggle('is-low', !!data.low_confidence);
+      var diseaseCell = document.getElementById('result-disease');
+      diseaseCell.classList.toggle('is-healthy', !!data.healthy);
       document.getElementById('result-alternatives').textContent = data.alternatives.length
         ? T.alternatives + ' ' + data.alternatives.map(function (a) {
             return a.crop + ' – ' + a.disease + ' (' + (a.confidence * 100).toFixed(1) + '%)';
