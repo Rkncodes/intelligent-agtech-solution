@@ -1,19 +1,180 @@
 {% extends 'layout.html' %} {% block body %}
 
 <style>
-  .mt-0 {
-  margin-top: 50 !important;
-}
+  /* Page-scoped styles: override the site-wide paragraph/list rules only inside this page */
+  .cr { --green: #16a34a; --green-dark: #15803d; --green-soft: #ecfdf3; --green-line: #bbf7d0;
+        --amber: #b45309; --amber-soft: #fffbeb; --amber-line: #fde68a; --ink: #111827; --muted: #6b7280; --line: #e5e7eb; }
+  .cr p, .cr li { letter-spacing: normal; font-weight: 400; font-size: 1rem; line-height: 1.6; color: var(--ink); }
+  .cr ul { padding-left: 1.2rem; margin-bottom: 0; }
+  .cr li { list-style-type: disc; margin-bottom: .35rem; }
+  .cr .card { border: 1px solid var(--line); }
+  .cr-section-title { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .75rem; }
+
+  /* 1. Recommendation header */
+  .cr-hero { background: linear-gradient(135deg, #ffffff 0%, var(--green-soft) 100%); border-left: 6px solid var(--green) !important; }
+  .cr-hero-icon { flex: 0 0 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; }
+  .cr .cr-kicker { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--green-dark); margin: 0; }
+  .cr-crop { font-size: 2.6rem; font-weight: 800; line-height: 1.1; color: var(--ink); margin: .2rem 0 .3rem; text-transform: capitalize; }
+  .cr .cr-statement { font-size: 1.05rem; color: var(--muted); margin: 0; }
+  .cr-match { display: inline-block; margin-top: .75rem; padding: .3rem .75rem; border-radius: 999px; font-size: .85rem; font-weight: 600;
+              background: #fff; border: 1px solid var(--green-line); color: var(--green-dark); }
+
+  /* 2. Explanation summary */
+  .cr-why h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: .6rem; }
+  .cr .cr-summary { font-size: 1.05rem; line-height: 1.7; margin: 0; }
+
+  /* 3. Key conditions */
+  .cr-key { height: 100%; border-radius: 12px; padding: 1rem 1.1rem; border: 1px solid var(--line); background: #fff; }
+  .cr-key.ok { border-left: 4px solid var(--green); }
+  .cr-key.off { border-left: 4px solid #f59e0b; }
+  .cr-key-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .4rem; }
+  .cr-key-head strong { font-size: .98rem; }
+  .cr .cr-key p { font-size: .92rem; line-height: 1.55; margin: 0; color: #374151; }
+
+  /* Status pills */
+  .cr-pill { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 600; white-space: nowrap; }
+  .cr-pill.ok { background: var(--green-soft); color: var(--green-dark); border: 1px solid var(--green-line); }
+  .cr-pill.off { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-line); }
+
+  /* 4. Field comparison */
+  .cr-table { margin: 0; }
+  .cr-table th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; border-top: 0; border-bottom: 1px solid var(--line); padding: .6rem .75rem; }
+  .cr-table td { vertical-align: middle; padding: .8rem .75rem; border-top: 1px solid #f1f5f9; font-size: .95rem; }
+  .cr-table td.cr-value { font-weight: 700; white-space: nowrap; }
+  .cr-table td.cr-range { color: #374151; white-space: nowrap; }
+  .cr-table tr.is-off td { background: #fffdf5; }
+  .range-svg { display: block; width: 100%; min-width: 140px; height: 14px; }
+  .range-svg .range-track { fill: #eef2f7; }
+  .range-svg .range-band { fill: #86efac; }
+  .range-svg .range-marker { fill: var(--green-dark); }
+  .range-svg .range-marker.off { fill: #d97706; }
+  .cr-legend { font-size: .82rem; color: var(--muted); }
+  .cr-legend i { display: inline-block; width: 18px; height: 8px; border-radius: 4px; background: #86efac; vertical-align: middle; margin: 0 .3rem 0 .8rem; }
+  .cr-legend b { display: inline-block; width: 4px; height: 12px; border-radius: 2px; background: var(--green-dark); vertical-align: middle; margin: 0 .3rem 0 .8rem; }
+
+  @media (max-width: 575.98px) {
+    .cr-crop { font-size: 2rem; }
+    .cr-hero-icon { flex-basis: 48px; height: 48px; }
+    /* Phone: each table row becomes a compact two-line card, no sideways scrolling */
+    .cr-table thead { display: none; }
+    .cr-table, .cr-table tbody { display: block; }
+    .cr-table tr { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "cond status" "value range";
+                   column-gap: .75rem; row-gap: .15rem; padding: .7rem .25rem; border-top: 1px solid #f1f5f9; }
+    .cr-table td { display: block; border: 0; padding: 0; font-size: .92rem; }
+    .cr-table td.cr-cond { grid-area: cond; font-weight: 600; }
+    .cr-table td.cr-status { grid-area: status; }
+    .cr-table td.cr-value { grid-area: value; }
+    .cr-table td.cr-range { grid-area: range; text-align: right; font-size: .85rem; color: var(--muted); }
+    .cr-table td.cr-range::before { content: attr(data-label) ": "; }
+    .cr-table tr.is-off { background: #fffdf5; }
+    .cr-table tr.is-off td { background: transparent; }
+  }
 </style>
 
+<section class="py-5 cr">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-10">
 
-<div class="container py-2 mx-auto my-50 h-10 " style="margin: 12rem;">
-  <div class="row">
-      <div class="col-sm py-2 py-md-3">
-          <div class="card card-body" style="justify-content: center;">
-               <h1 class="text-center"><b>You should grow <i>{{ prediction }} </i>in your farm</b></h1>
+        <!-- 1. Recommendation -->
+        <div class="card shadow-sm cr-hero mb-4">
+          <div class="card-body p-4 p-md-5 d-flex align-items-center">
+            <div class="cr-hero-icon mr-3 mr-md-4" aria-hidden="true">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 21v-9"></path><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"></path><path d="M12 15c0-3-2.5-5.5-7-5.5 0 3 2.5 5.5 7 5.5z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="cr-kicker">{{ _('Recommended crop') }}</p>
+              <div class="cr-crop">{{ explanation.crop if explanation else prediction }}</div>
+              <p class="cr-statement">You should grow <i>{{ prediction }} </i>in your farm</p>
+              {% if explanation %}
+              <span class="cr-match">{{ explanation.within_count }} {{ _('of 7 conditions within the usual range') }}</span>
+              {% endif %}
+            </div>
           </div>
+        </div>
+
+        {% if explanation %}
+        <!-- 2. Why -->
+        <div class="card shadow-sm cr-why mb-4">
+          <div class="card-body p-4 p-md-5">
+            <h2>{{ _('Why is this crop recommended?') }}</h2>
+            <p class="cr-summary">{{ explanation.summary }}</p>
+
+            <!-- 3. Key conditions -->
+            {% if explanation.key_points %}
+            <div class="cr-section-title mt-4">{{ _('Key growing conditions for') }} {{ explanation.crop }}</div>
+            <div class="row">
+              {% for k in explanation.key_points %}
+              <div class="col-md-6 col-lg-4 mb-3">
+                <div class="cr-key {{ 'ok' if k.match else 'off' }}">
+                  <div class="cr-key-head">
+                    <strong>{{ k.label }}</strong>
+                    <span class="cr-pill {{ 'ok' if k.match else 'off' }}">{{ _('Matches') if k.match else _('Needs attention') }}</span>
+                  </div>
+                  <p>{{ k.text }}</p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- 4. Field comparison -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap px-2 mb-2">
+              <div class="cr-section-title mb-1">{{ _('Your field compared with') }} {{ explanation.crop }}</div>
+              <div class="cr-legend d-none d-md-block mb-1"><i></i>{{ _('usual range') }} <b></b>{{ _('your value') }}</div>
+            </div>
+            <div class="table-responsive">
+              <table class="table cr-table">
+                <thead>
+                  <tr>
+                    <th>{{ _('Condition') }}</th>
+                    <th>{{ _('Your value') }}</th>
+                    <th>{{ _('Usual range') }}</th>
+                    <th class="d-none d-md-table-cell" style="width: 28%;">{{ _('Position') }}</th>
+                    <th class="text-right">{{ _('Status') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for r in explanation.rows %}
+                  <tr class="{{ '' if r.status == 'within' else 'is-off' }}">
+                    <td class="cr-cond">{{ r.label }}</td>
+                    <td class="cr-value"><b>{{ r.value }}</b> {{ r.unit }}</td>
+                    <td class="cr-range" data-label="{{ _('Usual') }}">{{ r.low }} – {{ r.high }} {{ r.unit }}</td>
+                    <td class="d-none d-md-table-cell">
+                      <svg class="range-svg" viewBox="0 0 100 14" preserveAspectRatio="none" role="img"
+                           aria-label="{{ _('usual range') }} {{ r.low }}–{{ r.high }}, {{ _('your value') }} {{ r.value }}">
+                        <rect class="range-track" x="0" y="4" width="100" height="6" rx="3"></rect>
+                        <rect class="range-band" x="{{ '%.1f' % r.bar_left }}" y="4" width="{{ '%.1f' % r.bar_width }}" height="6" rx="3"></rect>
+                        <rect class="range-marker {{ '' if r.status == 'within' else 'off' }}" x="{{ '%.1f' % (r.marker - 0.75) }}" y="0" width="1.5" height="14" rx="0.75"></rect>
+                      </svg>
+                    </td>
+                    <td class="cr-status text-right">
+                      {% if r.status == 'within' %}<span class="cr-pill ok">{{ _('Within range') }}</span>
+                      {% elif r.status == 'below' %}<span class="cr-pill off">{{ _('Below range') }}</span>
+                      {% else %}<span class="cr-pill off">{{ _('Above range') }}</span>{% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {% endif %}
+
+        <div class="text-right">
+          <a href="{{ url_for('crop_recommend') }}" class="btn btn-success px-4">{{ _('Try other values') }}</a>
+        </div>
+
       </div>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

@@ -159,7 +159,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 		<div class="container">
 			<a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
 				<img src="{{ url_for('static', filename='images/logo.jpg') }}" style="width: 44px; height: 32px" alt="">
-				<span class="ml-2 font-weight-semibold">Harvestify</span>
+				<span class="ml-2 font-weight-semibold notranslate" translate="no">Harvestify</span>
 			</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
 				aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -224,6 +224,29 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 	<!-- move top icon -->
 	<a href="#home" class="move-top text-center"></a>
 	<!-- //move top icon -->
+
+	<!-- Keep the fixed navbar clear of the Google Translate toolbar and the content clear of the navbar.
+	     When its toolbar is shown, Google Translate shifts <body> down (body.style.top); the fixed navbar
+	     must follow that offset, and <main> must start below the navbar's actual (possibly wrapped) height. -->
+	<script>
+		(function () {
+			var nav = document.querySelector('.hf-navbar');
+			if (!nav) return;
+			function sync() {
+				var shift = parseFloat(getComputedStyle(document.body).top) || 0;
+				nav.style.top = shift > 0 ? shift + 'px' : '';
+				var menuOpen = nav.querySelector('.navbar-collapse.show, .navbar-collapse.collapsing');
+				if (!menuOpen) {
+					document.documentElement.style.setProperty('--hf-nav-height', nav.offsetHeight + 'px');
+				}
+			}
+			new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
+			new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'lang'] });
+			if (window.ResizeObserver) new ResizeObserver(sync).observe(nav);
+			window.addEventListener('resize', sync);
+			sync();
+		})();
+	</script>
 
 	<!-- Google Translate (Website Translator) -->
 	<script>

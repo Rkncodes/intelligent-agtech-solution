@@ -924,7 +924,22 @@ footer{
 }
 
 .hf-main {
-    margin-top: 4.5rem;
+    /* at least the original offset; grows if the navbar wraps (height set by layout.html) */
+    margin-top: max(4.5rem, var(--hf-nav-height, 4.5rem));
+}
+
+/* Navbar must stay usable when translated labels are longer */
+.hf-navbar .navbar-brand {
+    flex-shrink: 0;
+}
+@media (min-width: 992px) {
+    .hf-navbar .navbar-nav {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+    .hf-navbar .nav-link {
+        white-space: nowrap;
+    }
 }
 /*-- //copyright --*/
 /*-- //footer --*/

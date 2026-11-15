@@ -105,22 +105,27 @@
   </div>
 </section>
 
+<!-- Translated UI text, read by the script below (kept as JSON so the template stays valid JavaScript) -->
+<script type="application/json" id="disease-text">
+{{ {
+  'invalidType': _('Please choose a JPG, PNG, WEBP or BMP image.'),
+  'emptyFile': _('The selected file is empty.'),
+  'tooLarge': _('The image is larger than 10 MB. Please choose a smaller image.'),
+  'failed': _('The analysis failed. Please check your connection and try again.'),
+  'lowConfidence': _('Low confidence: the model is unsure about this image. The result may well be wrong — try a closer, well-lit photo of a single leaf.'),
+  'alternatives': _('Other possibilities:'),
+  'noDisease': _('No disease detected (healthy)'),
+  'selected': _('Selected:'),
+  'symptoms': _('Symptoms'),
+  'causes': _('Causes'),
+  'prevention': _('Prevention'),
+  'management': _('Management')
+}|tojson }}
+</script>
+
 <script>
   (function () {
-    var T = {{ {
-      'invalidType': _('Please choose a JPG, PNG, WEBP or BMP image.'),
-      'emptyFile': _('The selected file is empty.'),
-      'tooLarge': _('The image is larger than 10 MB. Please choose a smaller image.'),
-      'failed': _('The analysis failed. Please check your connection and try again.'),
-      'lowConfidence': _('Low confidence: the model is unsure about this image. The result may well be wrong — try a closer, well-lit photo of a single leaf.'),
-      'alternatives': _('Other possibilities:'),
-      'noDisease': _('No disease detected (healthy)'),
-      'selected': _('Selected:'),
-      'symptoms': _('Symptoms'),
-      'causes': _('Causes'),
-      'prevention': _('Prevention'),
-      'management': _('Management')
-    }|tojson }};
+    var T = JSON.parse(document.getElementById('disease-text').textContent);
     var ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
     var MAX_BYTES = 10 * 1024 * 1024;
 

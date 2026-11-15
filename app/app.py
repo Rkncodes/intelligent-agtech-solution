@@ -8,6 +8,7 @@ import pandas as pd
 from utils.disease import disease_dic
 from utils.disease_info import DISEASE_INFO
 from utils.fertilizer import fertilizer_advice, CROP_GROUP
+from utils.crop_explain import CropProfiles, explain as explain_crop
 import requests
 import config
 import pickle
@@ -120,6 +121,19 @@ def init_crop_model():
     except Exception as e:
         print(f"ERROR: crop recommendation model failed to initialize from {crop_csv_path}: {e!r}")
         crop_recommendation_model = None
+
+
+def load_crop_profiles():
+    """Per-crop conditions from the crop dataset, used only to explain recommendations."""
+    try:
+        return CropProfiles(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                         'Data-processed', 'crop_recommendation.csv'))
+    except Exception as e:
+        print(f"ERROR: crop explanation data failed to load: {e!r}")
+        return None
+
+
+crop_profiles = load_crop_profiles()
 
 
 # ------------------------- MARKETPLACE DB -----------------------------------------------
@@ -475,6 +489,7 @@ def crop_prediction():
         except Exception:
             temperature = None
             humidity = None
+        weather = {'source': 'weather' if temperature is not None and humidity is not None else 'average', 'city': city}
 
         if temperature is None or humidity is None:
             if crop_feature_means is not None:
@@ -488,7 +503,11 @@ def crop_prediction():
         my_prediction = crop_recommendation_model.predict(data)
         final_prediction = my_prediction[0]
 
-        return render_template('crop-result.html', prediction=final_prediction, title=title)
+        explanation = None
+        if crop_profiles is not None:
+            inputs = {'N': N, 'P': P, 'K': K, 'temperature': temperature, 'humidity': humidity, 'ph': ph, 'rainfall': rainfall}
+            explanation = explain_crop(final_prediction, inputs, crop_profiles, weather)
+        return render_template('crop-result.html', prediction=final_prediction, title=title, explanation=explanation)
 
 # render fertilizer recommendation result page
 

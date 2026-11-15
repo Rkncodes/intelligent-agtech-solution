@@ -49,41 +49,67 @@
 <!-- //core values -->
 
 <!-- Products & Services -->
-<section class="blog py-5">
-	<div class="container py-md-5">
-		<h3 class="heading mb-sm-5 mb-4 text-center"> Our Services</h3>
-		<div class="row blog-grids">
-			<div class="col-lg-4 col-md-6 blog-left mb-lg-0 mb-sm-5 pb-lg-0 pb-5">
-				<img src="{{ url_for('static', filename='images/s3.jpg') }}" class="img-fluid" alt="" />
-				<a href="{{ url_for('crop_recommend') }}">
-					<div class="blog-info">
-
-						<h4>Crop</h4>
-
-						<p class="mt-2"> Recommendation about the type of crops to be cultivated which is best suited
-							for the respective conditions</p>
+<style>
+	.hf-services .heading { margin-bottom: 2rem; }
+	.hf-service {
+		display: flex; flex-direction: column; height: 100%;
+		background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden;
+		box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+		color: #111827; text-decoration: none;
+		transition: transform .2s ease, box-shadow .2s ease;
+	}
+	.hf-service:hover, .hf-service:focus { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12); color: #111827; text-decoration: none; }
+	.hf-service:focus-visible { outline: 3px solid rgba(22, 163, 74, 0.45); outline-offset: 2px; }
+	.hf-service-img { aspect-ratio: 3 / 2; overflow: hidden; background: #e8f5e9; }
+	.hf-service-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+	.hf-service:hover .hf-service-img img { transform: scale(1.04); }
+	.hf-service-body { display: flex; flex-direction: column; flex: 1; padding: 1.25rem 1.25rem 1.1rem; }
+	.hf-service-body h4 { font-size: 1.15rem; font-weight: 700; margin: 0 0 .5rem; letter-spacing: normal; overflow-wrap: anywhere; }
+	.hf-services .hf-service-body p { font-size: .95rem; line-height: 1.55; letter-spacing: normal; font-weight: 400; color: #4b5563; margin: 0 0 1rem; overflow-wrap: anywhere; }
+	.hf-service-link { margin-top: auto; font-weight: 600; font-size: .95rem; color: #16a34a; }
+	.hf-service:hover .hf-service-link { color: #15803d; }
+</style>
+<section class="hf-services py-5">
+	<div class="container">
+		<h3 class="heading text-center">Our Services</h3>
+		<div class="row">
+			<div class="col-12 col-md-6 col-lg-3 mb-4">
+				<a class="hf-service" href="{{ url_for('crop_recommend') }}">
+					<div class="hf-service-img"><img src="{{ url_for('static', filename='images/s3.jpg') }}" alt="Seedlings growing in pots" loading="lazy" /></div>
+					<div class="hf-service-body">
+						<h4>Crop Recommendation</h4>
+						<p>Find the crop best suited to your soil nutrients, pH and local climate.</p>
+						<span class="hf-service-link">Explore &rarr;</span>
 					</div>
 				</a>
 			</div>
-			<div class="col-lg-4 col-md-6 blog-middle mb-lg-0 mb-sm-5 pb-lg-0 pb-md-5">
-				<img src="{{ url_for('static', filename='images/s2.jpg') }}" class="img-fluid" alt="" />
-				<a href="{{ url_for('fertilizer_recommendation') }}">
-					<div class="blog-info">
-						<h4>Fertilizer</h4>
-						<p class="mt-2">Recommendation about the type of fertilizer best suited for the particular soil
-							and the recommended crop</p>
+			<div class="col-12 col-md-6 col-lg-3 mb-4">
+				<a class="hf-service" href="{{ url_for('fertilizer_recommendation') }}">
+					<div class="hf-service-img"><img src="{{ url_for('static', filename='images/s2.jpg') }}" alt="Young plants in soil" loading="lazy" /></div>
+					<div class="hf-service-body">
+						<h4>Fertilizer Advisor</h4>
+						<p>Check your soil's N, P and K levels and get advice for the crop you grow.</p>
+						<span class="hf-service-link">Explore &rarr;</span>
 					</div>
 				</a>
 			</div>
-			<div class="col-lg-4 col-md-6 blog-right mt-lg-0 mt-5 pt-lg-0 pt-md-5">
-
-				<img src="{{ url_for('static', filename='images/s4.jpg') }}" class="img-fluid" alt="">
-
-				<!-- <img src="images/s4.jpg" class="img-fliud" alt="" /> -->
-				<a href="{{ url_for('disease_prediction') }}">
-					<div class="blog-info">
-						<h4>Crop Disease</h4>
-						<p class="mt-2">Predicting the name and causes of crop disease and suggestions to cure it</p>
+			<div class="col-12 col-md-6 col-lg-3 mb-4">
+				<a class="hf-service" href="{{ url_for('disease_prediction') }}">
+					<div class="hf-service-img"><img src="{{ url_for('static', filename='images/s4.jpg') }}" alt="Farmer checking a crop with a tablet" loading="lazy" /></div>
+					<div class="hf-service-body">
+						<h4>Disease Detection</h4>
+						<p>Upload a leaf photo to identify plant diseases and see how to manage them.</p>
+						<span class="hf-service-link">Explore &rarr;</span>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3 mb-4">
+				<a class="hf-service" href="{{ url_for('marketplace') }}">
+					<div class="hf-service-img"><img src="{{ url_for('static', filename='images/crop_background.jpg') }}" alt="Ripe wheat field at harvest" loading="lazy" /></div>
+					<div class="hf-service-body">
+						<h4>Marketplace</h4>
+						<p>Browse seeds, fertilizers, farm tools and services, and order them online.</p>
+						<span class="hf-service-link">Explore &rarr;</span>
 					</div>
 				</a>
 			</div>
